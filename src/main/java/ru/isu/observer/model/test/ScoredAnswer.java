@@ -1,11 +1,13 @@
 package ru.isu.observer.model.test;
 
 import lombok.Data;
+import lombok.ToString;
 
 import javax.persistence.*;
 
 @Entity
 @Data
+@ToString
 public class ScoredAnswer {
 
     @Id

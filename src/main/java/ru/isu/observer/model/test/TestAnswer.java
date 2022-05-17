@@ -1,6 +1,7 @@
 package ru.isu.observer.model.test;
 
 import lombok.Data;
+import lombok.ToString;
 import ru.isu.observer.model.user.User;
 
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import java.util.List;
 
 @Data
 @Entity
+@ToString
 public class TestAnswer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -18,6 +18,7 @@ import ru.isu.observer.model.user.Role;
 import ru.isu.observer.model.user.User;
 import ru.isu.observer.model.hierarchy.Hierarchy;
 import ru.isu.observer.repo.*;
+import ru.isu.observer.service.HierarchyService;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -28,7 +29,7 @@ import java.util.Set;
 public class HomeController {
 
     UserRepo userRepo;
-    HierarchyRepo hierarchyRepo;
+    HierarchyService hierarchyService;
     SubjectRepo subjectRepo;
     OrganisationRepo organisationRepo;
     TestRepo testRepo;
@@ -39,7 +40,7 @@ public class HomeController {
 
     @Autowired
     public HomeController(UserRepo userRepo,
-                          HierarchyRepo hierarchyRepo,
+                          HierarchyService hierarchyService,
                           SubjectRepo subjectRepo,
                           OrganisationRepo organisationRepo,
                           TestRepo testRepo,
@@ -48,7 +49,7 @@ public class HomeController {
                           TestAnswerRepo testAnswerRepo,
                           ScoredAnswerRepo scoredAnswerRepo) {
         this.userRepo = userRepo;
-        this.hierarchyRepo = hierarchyRepo;
+        this.hierarchyService = hierarchyService;
         this.subjectRepo = subjectRepo;
         this.organisationRepo = organisationRepo;
         this.testRepo = testRepo;
@@ -60,29 +61,7 @@ public class HomeController {
 
     }
 
-    private void tempFun(Hierarchy node){
-        node.getChildren().forEach((child)->child.setParentId(node.getId()));
-        node.getChildren().forEach(this::tempFun);
-    }
-
-    public void loadTestData(){
-        Hierarchy root = new HierarchyRoot();
-        Hierarchy branch = new HierarchyBranch();
-        Hierarchy branch2 = new HierarchyBranch();
-        Hierarchy leaf = new HierarchyLeaf();
-        Hierarchy leaf2 = new HierarchyLeaf();
-
-        root.addChild(branch);
-        root.addChild(branch2);
-
-        branch.addChild(leaf);
-        branch2.addChild(leaf2);
-
-        hierarchyRepo.save(root);
-        tempFun(root);
-        hierarchyRepo.save(root);
-
-
+    public void loadUsers(){
         User user = new User();
         user.setEmail("user@mail.ru");
         user.setPassword("user");
@@ -107,41 +86,84 @@ public class HomeController {
         teacher.setRole(Role.TEACHER);
         teacher.setName("teacher");
 
-        //userRepo.save(user);
-        //userRepo.save(user2);
-        //userRepo.save(admin);
-
-
-        Subject subject = new Subject();
-        subject.setName("math");
-        subject.addTeacher(user);
-        subject.addTeacher(user2);
-
-        Organisation org = new Organisation();
-        org.setAdministrator(admin);
-        org.setHierarchyLegend(List.of("one","two","three"));
-        org.setName("isu");
-
-
-
-
-        subjectRepo.save(subject);
-
-
-        organisationRepo.save(org);
-
-        user.setOrganisation(org.getId());
-        user2.setOrganisation(org.getId());
-        admin.setOrganisation(org.getId());
-        teacher.setOrganisation(org.getId());
-
         userRepo.save(user);
         userRepo.save(user2);
         userRepo.save(teacher);
         userRepo.save(admin);
     }
 
-    public void loadTestDataTest(){
+    public void loadHierarchy(){
+
+        User student1 = userRepo.getByEmail("user@mail.ru");
+        User student2 = userRepo.getByEmail("user2@mail.ru");
+        Organisation org = organisationRepo.getByName("isu");
+
+        HierarchyRoot root = new HierarchyRoot();
+        HierarchyBranch branch = new HierarchyBranch();
+        HierarchyBranch branch2 = new HierarchyBranch();
+        HierarchyLeaf leaf = new HierarchyLeaf();
+        HierarchyLeaf leaf2 = new HierarchyLeaf();
+
+        root.setOrganisation(org);
+
+        branch.setName("boba");
+        branch2.setName("aboba2");
+
+        leaf.setStudent(student1);
+        leaf2.setStudent(student2);
+
+        root.addChild(branch);
+        root.addChild(branch2);
+
+        branch.addChild(leaf);
+        branch2.addChild(leaf2);
+
+        hierarchyService.createHierarchy(root);
+    }
+
+    public void loadSubject(){
+        User teacher = userRepo.getByEmail("teacher@mail.ru");
+
+        Subject subject = new Subject();
+        subject.setName("math");
+        subject.addTeacher(teacher);
+
+        subjectRepo.save(subject);
+    }
+
+    public void loadOrganisation(){
+
+        User admin = userRepo.getByEmail("admin@mail.ru");
+
+        Organisation org = new Organisation();
+        org.setAdministrator(admin);
+        org.setHierarchyLegend(List.of("one","two","three"));
+        org.setName("isu");
+
+        organisationRepo.save(org);
+
+    }
+
+    public void setOrganisationToUsers(){
+
+        User student1 = userRepo.getByEmail("user@mail.ru");
+        User student2 = userRepo.getByEmail("user2@mail.ru");
+        User teacher = userRepo.getByEmail("teacher@mail.ru");
+        User admin = userRepo.getByEmail("admin@mail.ru");
+        Organisation org = organisationRepo.getByName("isu");
+
+        student1.setOrganisation(org.getId());
+        student2.setOrganisation(org.getId());
+        admin.setOrganisation(org.getId());
+        teacher.setOrganisation(org.getId());
+
+        userRepo.save(student2);
+        userRepo.save(student1);
+        userRepo.save(teacher);
+        userRepo.save(admin);
+    }
+
+    public void loadTest(){
         Optional<User> user1opt = userRepo.findById(1L);
         Optional<User> user2opt = userRepo.findById(2L);
         Optional<User> user3opt = userRepo.findById(3L);
@@ -177,14 +199,6 @@ public class HomeController {
 
         q1.setRightAnswer(a1);
         q2.setRightAnswer(a2);
-
-        //questionRepo.save(q1);
-        //questionRepo.save(q2);
-
-        //userRepo.save(user1);
-        //userRepo.save(user2);
-        //userRepo.save(user3);
-        //userRepo.save(user4);
 
         Test test = new Test();
         test.setTimeLimit(10L);
@@ -246,14 +260,19 @@ public class HomeController {
 
     @ResponseBody
     @RequestMapping(value = "/{ID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Test main(@PathVariable Long ID) {
+    public Hierarchy main(@PathVariable Long ID) {
 
-        loadTestData();
-        loadTestDataTest();
+        loadUsers();
+        loadOrganisation();
+        setOrganisationToUsers();
+
+        loadSubject();
+        loadTest();
         loadTestDataAnsw();
-        Optional<Test> optTest = testRepo.findById(ID);
 
-        return optTest.orElseGet(Test::new);
+        loadHierarchy();
+
+        return hierarchyService.getHierarchy(2L);
     }
 
 }

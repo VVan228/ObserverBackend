@@ -1,4 +1,4 @@
-package ru.isu.observer.security;
+package ru.isu.observer.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
