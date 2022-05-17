@@ -1,13 +1,11 @@
-package ru.isu.observer.model;
+package ru.isu.observer.model.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.isu.observer.model.global.Organisation;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Data
 @NoArgsConstructor
@@ -21,6 +19,10 @@ public class User {
     String password;
     String email;
     String name;
+    String currentRefreshTokenHash;
 
-    String role;
+    Role role;
+
+    Long organisation;
+
 }

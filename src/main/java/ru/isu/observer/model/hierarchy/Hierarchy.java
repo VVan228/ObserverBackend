@@ -26,8 +26,8 @@ public class Hierarchy {
 
     public void addChild(Hierarchy child){
         children.add(child);
-        child.setHasParent(true);
+        child.setParentId(this.getId());
     }
 
-    private boolean hasParent = false;
+    private Long parentId;
 }
