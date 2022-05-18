@@ -48,9 +48,9 @@ public class UserService {
         userRepo.setOrganisation(id, organisationId);
     }
 
-    //public void deleteUser(Long id){
-    //    userRepo.deleteById(id);
-    //}
+    public void deleteUser(Long id){
+        //userRepo.deleteById(id);
+    }
 
     public User getUser(Long id){
         return userRepo.getById(id);

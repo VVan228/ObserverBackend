@@ -19,6 +19,7 @@ import ru.isu.observer.model.user.User;
 import ru.isu.observer.model.hierarchy.Hierarchy;
 import ru.isu.observer.repo.*;
 import ru.isu.observer.service.HierarchyService;
+import ru.isu.observer.service.SubjectService;
 import ru.isu.observer.service.UserService;
 
 import javax.transaction.Transactional;
@@ -30,7 +31,7 @@ import java.util.Set;
 public class HomeController {
 
     HierarchyService hierarchyService;
-    SubjectRepo subjectRepo;
+    SubjectService subjectService;
     OrganisationRepo organisationRepo;
     TestRepo testRepo;
     AnswerRepo answerRepo;
@@ -43,7 +44,7 @@ public class HomeController {
 
     @Autowired
     public HomeController(HierarchyService hierarchyService,
-                          SubjectRepo subjectRepo,
+                          SubjectService subjectService,
                           OrganisationRepo organisationRepo,
                           TestRepo testRepo,
                           AnswerRepo answerRepo,
@@ -52,7 +53,7 @@ public class HomeController {
                           ScoredAnswerRepo scoredAnswerRepo,
                           UserService userService) {
         this.hierarchyService = hierarchyService;
-        this.subjectRepo = subjectRepo;
+        this.subjectService = subjectService;
         this.organisationRepo = organisationRepo;
         this.testRepo = testRepo;
         this.answerRepo = answerRepo;
@@ -123,12 +124,14 @@ public class HomeController {
 
     public void loadSubject(){
         User teacher = userService.findUserByEmail("teacher@mail.ru");
+        Organisation org = organisationRepo.getByName("isu");
 
         Subject subject = new Subject();
         subject.setName("math");
-        subject.addTeacher(teacher);
 
-        subjectRepo.save(subject);
+        subjectService.addSubject(subject);
+        subjectService.addTeacherToSubject(subject.getId(), teacher.getId());
+        subjectService.setOrganisation(subject.getId(), org.getId());
     }
 
     public void loadOrganisation(){
@@ -165,9 +168,7 @@ public class HomeController {
         User user3 = userService.getUser(3L);
         User user4 = userService.getUser(4L);
 
-        Optional<Subject> subjOpt = subjectRepo.findById(1L);
-
-        Subject subj = subjOpt.orElseGet(Subject::new);
+        Subject subj = subjectService.getSubject(1L);
 
         Variant var1 = new Variant();
         var1.setText("var1 q1");
@@ -249,7 +250,7 @@ public class HomeController {
 
     @ResponseBody
     @RequestMapping(value = "/{ID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Page<User> main(
+    public Page<Subject> main(
             @PathVariable Long ID,
             @RequestParam Optional<String> sortBy,
             @RequestParam Optional<Integer> page,
@@ -269,11 +270,15 @@ public class HomeController {
             loaded = true;
         }
 
+
         Boolean isAscB = isAsc.orElse(Boolean.TRUE);
         Sort.Direction dir = isAscB?Sort.Direction.ASC : Sort.Direction.DESC;
 
+        Subject subj = subjectService.getSubjectByName("math");
+        System.out.println(subj);
 
-        return userService.getStudentsPage(ID, dir, page.orElse(0), sortBy.orElse("id"));
+
+        return subjectService.getSubjectsPage(ID, dir, page.orElse(0), sortBy.orElse("id"));
     }
 
 }

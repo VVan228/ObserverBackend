@@ -17,7 +17,7 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
     User getByEmail(String email);
 
-    @Modifying(flushAutomatically = true)
+    @Modifying(clearAutomatically = true)
     @Query("update User u set u.name = :name where u.id = :id")
     void updateName(@Param(value = "id") Long id, @Param(value = "name") String name);
 
@@ -26,11 +26,11 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Query(value = "update User u set u.email = :email where u.id = :id")
     void updateEmail(@Param(value = "id") Long id, @Param(value = "email") String email);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update User u set u.currentRefreshTokenHash = :token where u.id = :id")
     void replaceRefreshToken(@Param(value = "id") Long id, @Param(value = "token") String token);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("update User u set u.organisationId = :organisationId where u.id = :id")
     void setOrganisation(@Param(value = "id") Long id, @Param(value = "organisationId") Long organisationId);
 

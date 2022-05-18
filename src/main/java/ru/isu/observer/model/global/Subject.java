@@ -1,5 +1,6 @@
 package ru.isu.observer.model.global;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,8 @@ public class Subject {
 
     @OneToMany(cascade=CascadeType.ALL)
     Set<User> teachers = new HashSet<>();
+
+    Long organisationId;
 
     public void addTeacher(User user){
         teachers.add(user);
