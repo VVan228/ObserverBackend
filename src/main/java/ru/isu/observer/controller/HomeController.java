@@ -91,6 +91,8 @@ public class HomeController {
         userService.saveStudent(user2);
         userService.saveTeacher(teacher);
         userService.saveUser(admin);
+
+        userService.updateUserName(user.getId(), "abobik");
     }
 
     public void loadHierarchy(){
@@ -131,7 +133,7 @@ public class HomeController {
 
         subjectService.addSubject(subject);
         subjectService.addTeacherToSubject(subject.getId(), teacher.getId());
-        subjectService.setOrganisation(subject.getId(), org.getId());
+        subjectService.setOrganisation(subject, org.getId());
     }
 
     public void loadOrganisation(){
@@ -250,7 +252,7 @@ public class HomeController {
 
     @ResponseBody
     @RequestMapping(value = "/{ID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Page<Subject> main(
+    public Subject main(
             @PathVariable Long ID,
             @RequestParam Optional<String> sortBy,
             @RequestParam Optional<Integer> page,
@@ -275,10 +277,11 @@ public class HomeController {
         Sort.Direction dir = isAscB?Sort.Direction.ASC : Sort.Direction.DESC;
 
         Subject subj = subjectService.getSubjectByName("math");
-        System.out.println(subj);
-
-
-        return subjectService.getSubjectsPage(ID, dir, page.orElse(0), sortBy.orElse("id"));
+        User user = userService.findUserByEmail("user@mail.ru");
+        subj = subjectService.addTeacherToSubject(subj, user.getId());
+        System.out.println(user);
+        //return subjectService.getSubjectsPage(ID, dir, page.orElse(0), sortBy.orElse("id"));
+        return subj;
     }
 
 }

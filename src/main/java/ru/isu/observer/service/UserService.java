@@ -33,11 +33,9 @@ public class UserService {
         user.setRole(Role.STUDENT);
         userRepo.save(user);
     }
-
     public void saveUser(User user){
         userRepo.save(user);
     }
-
     public void saveTeacher(User user){
         user.setRole(Role.TEACHER);
         userRepo.save(user);
@@ -47,15 +45,17 @@ public class UserService {
     public void setOrganisation(Long id, Long organisationId){
         userRepo.setOrganisation(id, organisationId);
     }
-
-    public void deleteUser(Long id){
-        //userRepo.deleteById(id);
+    @Transactional
+    public User setOrganisation(User user, Long organisationId){
+        user.setOrganisationId(organisationId);
+        userRepo.save(user);
+        return user;
     }
+
 
     public User getUser(Long id){
         return userRepo.getById(id);
     }
-
     public User findUserByEmail(String email){
         return userRepo.getByEmail(email);
     }
@@ -64,15 +64,33 @@ public class UserService {
     public void updateUserName(Long id, String name){
         userRepo.updateName(id, name);
     }
+    @Transactional
+    public User updateUserName(User user, String name){
+        user.setName(name);
+        userRepo.save(user);
+        return user;
+    }
 
     @Transactional
     public void updateUserEmail(Long id, String email){
         userRepo.updateEmail(id, email);
     }
+    @Transactional
+    public User updateUserEmail(User user, String email){
+        user.setEmail(email);
+        userRepo.save(user);
+        return user;
+    }
 
     @Transactional
     public void replaceRefreshToken(Long id, String refreshToken){
         userRepo.replaceRefreshToken(id, refreshToken);
+    }
+    @Transactional
+    public User replaceRefreshToken(User user, String refreshToken){
+        user.setCurrentRefreshTokenHash(refreshToken);
+        userRepo.save(user);
+        return user;
     }
 
     public Page<User> getStudentsPage(Long organisationId, Sort.Direction direction, Integer page, String sortBy){
@@ -86,7 +104,6 @@ public class UserService {
                 organisationId,
                 Role.STUDENT);
     }
-
     public Page<User> getTeachersPage(Long organisationId, Sort.Direction direction, Integer page, String sortBy){
         return userRepo.getUsersOfOrganisation(
                 PageRequest.of(
@@ -98,12 +115,15 @@ public class UserService {
                 organisationId,
                 Role.TEACHER);
     }
-
     public List<User> getStudents(Long organisationId){
         return userRepo.getUsersOfOrganisation(organisationId, Role.STUDENT);
     }
-
     public List<User> getTeachers(Long organisationId){
         return userRepo.getUsersOfOrganisation(organisationId, Role.TEACHER);
+    }
+
+
+    public void deleteUser(Long id){
+        //userRepo.deleteById(id);
     }
 }
