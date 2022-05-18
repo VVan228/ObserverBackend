@@ -23,6 +23,6 @@ public class User {
 
     Role role;
 
-    Long organisation;
+    Long organisationId;
 
 }

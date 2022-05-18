@@ -3,11 +3,11 @@ package ru.isu.observer.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import ru.isu.observer.model.global.Organisation;
 import ru.isu.observer.model.global.Subject;
 import ru.isu.observer.model.hierarchy.HierarchyBranch;
@@ -19,6 +19,7 @@ import ru.isu.observer.model.user.User;
 import ru.isu.observer.model.hierarchy.Hierarchy;
 import ru.isu.observer.repo.*;
 import ru.isu.observer.service.HierarchyService;
+import ru.isu.observer.service.UserService;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -28,7 +29,6 @@ import java.util.Set;
 @Controller
 public class HomeController {
 
-    UserRepo userRepo;
     HierarchyService hierarchyService;
     SubjectRepo subjectRepo;
     OrganisationRepo organisationRepo;
@@ -37,18 +37,20 @@ public class HomeController {
     QuestionRepo questionRepo;
     TestAnswerRepo testAnswerRepo;
     ScoredAnswerRepo scoredAnswerRepo;
+    UserService userService;
+
+    boolean loaded = false;
 
     @Autowired
-    public HomeController(UserRepo userRepo,
-                          HierarchyService hierarchyService,
+    public HomeController(HierarchyService hierarchyService,
                           SubjectRepo subjectRepo,
                           OrganisationRepo organisationRepo,
                           TestRepo testRepo,
                           AnswerRepo answerRepo,
                           QuestionRepo questionRepo,
                           TestAnswerRepo testAnswerRepo,
-                          ScoredAnswerRepo scoredAnswerRepo) {
-        this.userRepo = userRepo;
+                          ScoredAnswerRepo scoredAnswerRepo,
+                          UserService userService) {
         this.hierarchyService = hierarchyService;
         this.subjectRepo = subjectRepo;
         this.organisationRepo = organisationRepo;
@@ -57,6 +59,7 @@ public class HomeController {
         this.questionRepo = questionRepo;
         this.testAnswerRepo = testAnswerRepo;
         this.scoredAnswerRepo = scoredAnswerRepo;
+        this.userService = userService;
 
 
     }
@@ -65,37 +68,34 @@ public class HomeController {
         User user = new User();
         user.setEmail("user@mail.ru");
         user.setPassword("user");
-        user.setRole(Role.STUDENT);
         user.setName("user");
 
         User user2 = new User();
         user2.setEmail("user2@mail.ru");
         user2.setPassword("user2");
-        user2.setRole(Role.STUDENT);
         user2.setName("user2");
 
         User admin = new User();
         admin.setEmail("admin@mail.ru");
         admin.setPassword("admin");
-        admin.setRole(Role.ADMIN);
         admin.setName("admin");
+        admin.setRole(Role.ADMIN);
 
         User teacher = new User();
         teacher.setEmail("teacher@mail.ru");
         teacher.setPassword("teacher");
-        teacher.setRole(Role.TEACHER);
         teacher.setName("teacher");
 
-        userRepo.save(user);
-        userRepo.save(user2);
-        userRepo.save(teacher);
-        userRepo.save(admin);
+        userService.saveStudent(user);
+        userService.saveStudent(user2);
+        userService.saveTeacher(teacher);
+        userService.saveUser(admin);
     }
 
     public void loadHierarchy(){
 
-        User student1 = userRepo.getByEmail("user@mail.ru");
-        User student2 = userRepo.getByEmail("user2@mail.ru");
+        User student1 = userService.findUserByEmail("user@mail.ru");
+        User student2 = userService.findUserByEmail("user2@mail.ru");
         Organisation org = organisationRepo.getByName("isu");
 
         HierarchyRoot root = new HierarchyRoot();
@@ -122,7 +122,7 @@ public class HomeController {
     }
 
     public void loadSubject(){
-        User teacher = userRepo.getByEmail("teacher@mail.ru");
+        User teacher = userService.findUserByEmail("teacher@mail.ru");
 
         Subject subject = new Subject();
         subject.setName("math");
@@ -133,7 +133,7 @@ public class HomeController {
 
     public void loadOrganisation(){
 
-        User admin = userRepo.getByEmail("admin@mail.ru");
+        User admin = userService.findUserByEmail("admin@mail.ru");
 
         Organisation org = new Organisation();
         org.setAdministrator(admin);
@@ -146,33 +146,24 @@ public class HomeController {
 
     public void setOrganisationToUsers(){
 
-        User student1 = userRepo.getByEmail("user@mail.ru");
-        User student2 = userRepo.getByEmail("user2@mail.ru");
-        User teacher = userRepo.getByEmail("teacher@mail.ru");
-        User admin = userRepo.getByEmail("admin@mail.ru");
+        User student1 = userService.findUserByEmail("user@mail.ru");
+        User student2 = userService.findUserByEmail("user2@mail.ru");
+        User teacher = userService.findUserByEmail("teacher@mail.ru");
+        User admin = userService.findUserByEmail("admin@mail.ru");
         Organisation org = organisationRepo.getByName("isu");
 
-        student1.setOrganisation(org.getId());
-        student2.setOrganisation(org.getId());
-        admin.setOrganisation(org.getId());
-        teacher.setOrganisation(org.getId());
 
-        userRepo.save(student2);
-        userRepo.save(student1);
-        userRepo.save(teacher);
-        userRepo.save(admin);
+        userService.setOrganisation(student1.getId(), org.getId());
+        userService.setOrganisation(student2.getId(), org.getId());
+        userService.setOrganisation(admin.getId(), org.getId());
+        userService.setOrganisation(teacher.getId(), org.getId());
     }
 
     public void loadTest(){
-        Optional<User> user1opt = userRepo.findById(1L);
-        Optional<User> user2opt = userRepo.findById(2L);
-        Optional<User> user3opt = userRepo.findById(3L);
-        Optional<User> user4opt = userRepo.findById(4L);
-
-        User user1 = user1opt.orElseGet(User::new);
-        User user2 = user2opt.orElseGet(User::new);
-        User user3 = user3opt.orElseGet(User::new);
-        User user4 = user4opt.orElseGet(User::new);
+        User user1 = userService.getUser(1L);
+        User user2 = userService.getUser(2L);
+        User user3 = userService.getUser(3L);
+        User user4 = userService.getUser(4L);
 
         Optional<Subject> subjOpt = subjectRepo.findById(1L);
 
@@ -212,9 +203,7 @@ public class HomeController {
     }
 
     public void loadTestDataAnsw() {
-        Optional<User> user1opt = userRepo.findById(1L);
-
-        User user1 = user1opt.orElseGet(User::new);
+        User user1 = userService.getUser(1L);
 
         Optional<Test> testOpt = testRepo.findById(1L);
 
@@ -260,19 +249,31 @@ public class HomeController {
 
     @ResponseBody
     @RequestMapping(value = "/{ID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Hierarchy main(@PathVariable Long ID) {
+    public Page<User> main(
+            @PathVariable Long ID,
+            @RequestParam Optional<String> sortBy,
+            @RequestParam Optional<Integer> page,
+            @RequestParam Optional<Boolean> isAsc
+            ) {
 
-        loadUsers();
-        loadOrganisation();
-        setOrganisationToUsers();
+        if(!loaded){
+            loadUsers();
+            loadOrganisation();
+            setOrganisationToUsers();
 
-        loadSubject();
-        loadTest();
-        loadTestDataAnsw();
+            loadSubject();
+            loadTest();
+            loadTestDataAnsw();
 
-        loadHierarchy();
+            loadHierarchy();
+            loaded = true;
+        }
 
-        return hierarchyService.getHierarchy(2L);
+        Boolean isAscB = isAsc.orElse(Boolean.TRUE);
+        Sort.Direction dir = isAscB?Sort.Direction.ASC : Sort.Direction.DESC;
+
+
+        return userService.getStudentsPage(ID, dir, page.orElse(0), sortBy.orElse("id"));
     }
 
 }
