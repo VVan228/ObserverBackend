@@ -61,13 +61,16 @@ public class TestService {
 
     }
 
-    public List<Test> getTestsForUser(User user){
-        if(user.getRole() == Role.TEACHER){
-            return testRepo.getTestsForTeacher(user.getId());
-        }else if(user.getRole() == Role.STUDENT){
-            return testRepo.getTestsForStudent(user.getId());
+    public List<Test> getTestsForUser(Long userId, Role role){
+        if(role == Role.TEACHER){
+            return testRepo.getTestsForTeacher(userId);
+        }else if(role == Role.STUDENT){
+            return testRepo.getTestsForStudent(userId);
         }
         return null;
+    }
+    public List<Test> getTestsForUser(User user){
+        return getTestsForUser(user.getId(), user.getRole());
     }
     public List<Test> getTestsForUser(Long userId){
         return getTestsForUser(userService.getUser(userId));
