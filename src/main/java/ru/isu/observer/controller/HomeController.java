@@ -3,7 +3,9 @@ package ru.isu.observer.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -18,14 +20,10 @@ import ru.isu.observer.model.user.Role;
 import ru.isu.observer.model.user.User;
 import ru.isu.observer.model.hierarchy.Hierarchy;
 import ru.isu.observer.repo.*;
-import ru.isu.observer.service.HierarchyService;
-import ru.isu.observer.service.SubjectService;
-import ru.isu.observer.service.UserService;
+import ru.isu.observer.service.*;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 public class HomeController {
@@ -33,12 +31,15 @@ public class HomeController {
     HierarchyService hierarchyService;
     SubjectService subjectService;
     OrganisationRepo organisationRepo;
-    TestRepo testRepo;
+    TestService testService;
     AnswerRepo answerRepo;
     QuestionRepo questionRepo;
-    TestAnswerRepo testAnswerRepo;
+    TestAnswerService testAnswerService;
     ScoredAnswerRepo scoredAnswerRepo;
     UserService userService;
+
+    @Value("${pages.size}")
+    private Integer PAGE_SIZE;
 
     boolean loaded = false;
 
@@ -46,21 +47,21 @@ public class HomeController {
     public HomeController(HierarchyService hierarchyService,
                           SubjectService subjectService,
                           OrganisationRepo organisationRepo,
-                          TestRepo testRepo,
                           AnswerRepo answerRepo,
                           QuestionRepo questionRepo,
-                          TestAnswerRepo testAnswerRepo,
+                          TestAnswerService testAnswerService,
                           ScoredAnswerRepo scoredAnswerRepo,
-                          UserService userService) {
+                          UserService userService,
+                          TestService testService) {
         this.hierarchyService = hierarchyService;
         this.subjectService = subjectService;
         this.organisationRepo = organisationRepo;
-        this.testRepo = testRepo;
         this.answerRepo = answerRepo;
         this.questionRepo = questionRepo;
-        this.testAnswerRepo = testAnswerRepo;
+        this.testAnswerService = testAnswerService;
         this.scoredAnswerRepo = scoredAnswerRepo;
         this.userService = userService;
+        this.testService = testService;
 
 
     }
@@ -172,6 +173,8 @@ public class HomeController {
 
         Subject subj = subjectService.getSubject(1L);
 
+        Hierarchy root = hierarchyService.getHierarchy(1L);
+
         Variant var1 = new Variant();
         var1.setText("var1 q1");
         Variant var2 = new Variant();
@@ -184,33 +187,35 @@ public class HomeController {
         Question q1 = new Question();
         Question q2 = new Question();
         q1.setVariants(List.of(var1, var2));
-        q2.setVariants(List.of(var3, var4));
+        //q2.setVariants(List.of(var3, var4));
 
         Answer a1 = new Answer();
         a1.setClosedAnswer(List.of(var1, var2));
-        Answer a2 = new Answer();
-        a2.setClosedAnswer(List.of(var4));
+        //Answer a2 = new Answer();
+        //a2.setClosedAnswer(List.of(var4));
 
         q1.setRightAnswer(a1);
-        q2.setRightAnswer(a2);
+        q2.setRightAnswer(null);
+
+        q1.setQuestionType(QuestionType.MulVarQuestion);
+        q2.setQuestionType(QuestionType.OpenQuestionCheck);
 
         Test test = new Test();
         test.setTimeLimit(10L);
         test.setQuestions(List.of(q1,q2));
         test.setOpenedFor(Set.of(user1,user2));
-        test.setAutoCheck(true);
+        test.setAutoCheck(false);
         test.setSubject(subj);
-        test.setCreator(user4);
+        test.setCreator(user3);
 
-        testRepo.save(test);
+        testService.createTest(test, List.of(root.getId()));
     }
 
     public void loadTestDataAnsw() {
         User user1 = userService.getUser(1L);
+        User user2 = userService.getUser(2L);
 
-        Optional<Test> testOpt = testRepo.findById(1L);
-
-        Test test = testOpt.orElseGet(Test::new);
+        Test test = testService.getTest(1L);
 
 
         List<Question> questions = test.getQuestions();
@@ -218,41 +223,38 @@ public class HomeController {
         Question q1 = questions.get(0);
         Question q2 = questions.get(1);
         List<Variant> var1 = q1.getVariants();
-        List<Variant> var2 = q2.getVariants();
+        //List<Variant> var2 = q2.getVariants();
 
-        ScoredAnswer sa1 = new ScoredAnswer();
-        ScoredAnswer sa2 = new ScoredAnswer();
+        Map<Long, Answer> answerMap = new HashMap<>();
 
         Answer a1 = new Answer();
-        a1.setClosedAnswer(List.of(var1.get(0), var1.get(1)));
+        a1.setClosedAnswer(new ArrayList<>(List.of(var1.get(0), var1.get(1))));
         Answer a2 = new Answer();
-        a2.setClosedAnswer(List.of(var2.get(1)));
+        //a2.setClosedAnswer(List.of(var2.get(1)));
+        a2.setOpenAnswer("abobik 228322");
 
-        sa1.setScore(5);
-        sa1.setQuestion(q1);
-        sa1.setAnswer(a1);
+        answerMap.put(q1.getId(), a1);
+        answerMap.put(q2.getId(), a2);
 
-        sa2.setScore(4);
-        sa2.setQuestion(q2);
-        sa2.setAnswer(a2);
+        testAnswerService.createTestAnswer(test, user1, answerMap);
 
+        testAnswerService.createTestAnswer(test, user1, answerMap);
 
-        TestAnswer answ = new TestAnswer();
+        testAnswerService.createTestAnswer(test, user2, answerMap);
 
-        answ.setTest(test);
-        answ.setAnswers(List.of(sa1, sa2));
-        answ.setValidated(true);
-        answ.setStudent(user1);
-        answ.setTotalScore(10);
-        answ.setComment("abobius");
+        ScoredAnswer sa = new ScoredAnswer();
 
-        testAnswerRepo.save(answ);
+        sa.setScore(15);
+        sa.setQuestionId(q2.getId());
+        sa.setAnswer(a2);
+        sa.setComment("no u");
 
+        testAnswerService.setCheckTestAnswer(1L, List.of(sa));
     }
 
     @ResponseBody
     @RequestMapping(value = "/{ID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Subject main(
+    public Page<TestAnswer> main(
             @PathVariable Long ID,
             @RequestParam Optional<String> sortBy,
             @RequestParam Optional<Integer> page,
@@ -265,10 +267,12 @@ public class HomeController {
             setOrganisationToUsers();
 
             loadSubject();
+            loadHierarchy();
             loadTest();
+
             loadTestDataAnsw();
 
-            loadHierarchy();
+
             loaded = true;
         }
 
@@ -276,12 +280,23 @@ public class HomeController {
         Boolean isAscB = isAsc.orElse(Boolean.TRUE);
         Sort.Direction dir = isAscB?Sort.Direction.ASC : Sort.Direction.DESC;
 
-        Subject subj = subjectService.getSubjectByName("math");
         User user = userService.findUserByEmail("user@mail.ru");
-        subj = subjectService.addTeacherToSubject(subj, user.getId());
-        System.out.println(user);
+
         //return subjectService.getSubjectsPage(ID, dir, page.orElse(0), sortBy.orElse("id"));
-        return subj;
+        /*
+        * PageRequest.of(
+                        page.orElse(0),
+                        PAGE_SIZE,
+                        dir,
+                        sortBy.orElse("id")
+                )*/
+
+        return testAnswerService.getStudentTestAnswersPage(PageRequest.of(
+                page.orElse(0),
+                PAGE_SIZE,
+                dir,
+                sortBy.orElse("id")
+        ), 1L);
     }
 
 }

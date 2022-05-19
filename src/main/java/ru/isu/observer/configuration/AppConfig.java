@@ -26,4 +26,9 @@ public class AppConfig {
     public AnswerValidationStrategy orderStrategy(){
         return new OrderQuestionValidation();
     }
+
+    @Bean
+    public AnswerValidationStrategy openCheckStrategy(){
+        return new OpenCheckQuestionValidation();
+    }
 }

@@ -4,19 +4,16 @@ import ru.isu.observer.model.test.Answer;
 import ru.isu.observer.model.test.Question;
 import ru.isu.observer.model.test.ScoredAnswer;
 
-public class OpenQuestionValidation implements AnswerValidationStrategy{
-
+public class OpenCheckQuestionValidation implements AnswerValidationStrategy{
     @Override
     public ScoredAnswer validate(Question q, Answer a) {
-        String studentAnswer = a.getOpenAnswer();
 
-        String rightAnswer = q.getRightAnswer().getOpenAnswer();
+
+        String studentAnswer = a.getOpenAnswer();
 
         ScoredAnswer res = new ScoredAnswer();
 
-        boolean correct = studentAnswer.equals(rightAnswer);
-
-        int score = 100 * Boolean.compare(correct, false) * q.getScoreScale();
+        int score = 0;
 
         res.setAnswer(a);
         res.setScore(score);

@@ -17,17 +17,20 @@ public class TestValidationService {
     AnswerValidationStrategy mulVarVal;
     AnswerValidationStrategy openVal;
     AnswerValidationStrategy orderVal;
+    AnswerValidationStrategy openCheckVal;
 
     TestValidationService(
             @Qualifier("oneVarStrategy") AnswerValidationStrategy oneVarVal,
             @Qualifier("mulVarStrategy") AnswerValidationStrategy mulVarVal,
             @Qualifier("openStrategy") AnswerValidationStrategy openVal,
-            @Qualifier("orderStrategy") AnswerValidationStrategy orderVal
+            @Qualifier("orderStrategy") AnswerValidationStrategy orderVal,
+            @Qualifier("openCheckStrategy") AnswerValidationStrategy openCheckVal
     ){
         this.oneVarVal = oneVarVal;
         this.mulVarVal = mulVarVal;
         this.openVal = openVal;
         this.orderVal = orderVal;
+        this.openCheckVal = openCheckVal;
     }
 
 
@@ -57,8 +60,8 @@ public class TestValidationService {
                 case OpenQuestion -> sa = openVal.validate(q, answer.getValue());
                 case OrderQuestion -> sa = orderVal.validate(q, answer.getValue());
                 case OpenQuestionCheck -> {
+                    sa = openCheckVal.validate(q, answer.getValue());
                     res.setValidated(false);
-                    continue;
                 }
             }
 
@@ -71,4 +74,13 @@ public class TestValidationService {
 
         return res;
     }
+
+    public int getTotalScore(TestAnswer testAnswer){
+        int totalScore = 0;
+        for(ScoredAnswer sa: testAnswer.getAnswers()){
+            totalScore += sa.getScore();
+        }
+        return totalScore;
+    }
+
 }

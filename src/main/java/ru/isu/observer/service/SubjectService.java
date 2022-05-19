@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.isu.observer.model.global.Organisation;
 import ru.isu.observer.model.global.Subject;
 import ru.isu.observer.model.user.Role;
 import ru.isu.observer.model.user.User;
@@ -20,15 +22,13 @@ import java.util.List;
 public class SubjectService {
 
     SubjectRepo subjectRepo;
-    UserRepo userRepo;
+    UserService userService;
 
-    @Value("${pages.size}")
-    private Integer PAGE_SIZE;
 
     @Autowired
-    public SubjectService(SubjectRepo subjectRepo, UserRepo userRepo) {
+    public SubjectService(SubjectRepo subjectRepo, UserService userService) {
         this.subjectRepo = subjectRepo;
-        this.userRepo = userRepo;
+        this.userService = userService;
     }
 
     public void addSubject(Subject s){
@@ -39,14 +39,15 @@ public class SubjectService {
     public List<Subject> getSubjects(Long organisationId){
         return subjectRepo.getSubjectsOfOrganisation(organisationId);
     }
-    public Page<Subject> getSubjectsPage(Long organisationId, Sort.Direction direction, Integer page, String sortBy){
+    public List<Subject> getSubjects(Organisation organisation){
+        return getSubjects(organisation.getId());
+    }
+    public Page<Subject> getSubjectsPage(Organisation organisation, Pageable pageable){
+        return getSubjectsPage(organisation.getId(), pageable);
+    }
+    public Page<Subject> getSubjectsPage(Long organisationId, Pageable pageable){
         return subjectRepo.getSubjectsOfOrganisation(
-                PageRequest.of(
-                        page,
-                        PAGE_SIZE,
-                        direction,
-                        sortBy
-                ),
+                pageable,
                 organisationId);
     }
 
@@ -61,7 +62,6 @@ public class SubjectService {
     public void setOrganisation(Long id, Long organisationId){
         subjectRepo.setOrganisation(id, organisationId);
     }
-    @Transactional
     public Subject setOrganisation(Subject subject, Long organisationId){
         subject.setOrganisationId(organisationId);
         subjectRepo.save(subject);
@@ -73,37 +73,29 @@ public class SubjectService {
         subjectRepo.updateName(id, name);
     }
     @Transactional
-    public Subject updateSubjectName(Subject subject, String name){
-        if(subject.getId() == null){
-            subjectRepo.save(subject);
-        }
-        Long id = subject.getId();
-        subjectRepo.updateName(id, name);
-        return getSubject(id);
+    public void updateSubjectName(Subject subject, String name){
+        updateSubjectName(subject.getId(), name);
     }
 
-    @Transactional
+
     public Subject addTeacherToSubject(Long subjectId, Long teacherId){
-        User teacher = userRepo.getById(teacherId);
+        User teacher = userService.getUser(teacherId);
         Subject subject = subjectRepo.getById(subjectId);
         subject.addTeacher(teacher);
         subjectRepo.save(subject);
         return subject;
     }
-    @Transactional
     public Subject addTeacherToSubject(Subject subject, Long teacherId){
-        User teacher = userRepo.getById(teacherId);
+        User teacher = userService.getUser(teacherId);
         subject.addTeacher(teacher);
         subjectRepo.save(subject);
         return subject;
     }
-    @Transactional
     public Subject addTeacherToSubject(Subject subject, User teacher){
         subject.addTeacher(teacher);
         subjectRepo.save(subject);
         return subject;
     }
-    @Transactional
     public Subject addTeacherToSubject(Long subjectId, User teacher){
         Subject subject = subjectRepo.getById(subjectId);
         subject.addTeacher(teacher);

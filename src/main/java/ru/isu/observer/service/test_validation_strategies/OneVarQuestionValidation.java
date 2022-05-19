@@ -23,7 +23,7 @@ public class OneVarQuestionValidation implements AnswerValidationStrategy{
 
         res.setAnswer(a);
         res.setScore(score);
-        res.setQuestion(q);
+        res.setQuestionId(q.getId());
         
         return res;
     }

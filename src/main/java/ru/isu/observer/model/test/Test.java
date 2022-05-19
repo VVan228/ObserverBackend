@@ -34,4 +34,6 @@ public class Test {
 
     @ManyToOne
     User creator;
+
+    String name;
 }

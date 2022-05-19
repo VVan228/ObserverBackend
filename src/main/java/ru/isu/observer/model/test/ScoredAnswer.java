@@ -17,8 +17,9 @@ public class ScoredAnswer {
     @OneToOne(cascade = CascadeType.ALL)
     Answer answer;
 
-    @ManyToOne
-    Question question;
+    Long questionId;
 
     int score;
+
+    String comment;
 }
