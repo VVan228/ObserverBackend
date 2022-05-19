@@ -24,19 +24,8 @@ public class Organisation {
     @OneToOne(cascade=CascadeType.ALL)
     User administrator;
 
-    String hierarchyLegend;
+    @Convert(converter = ListToStringConverter.class)
+    List<String> hierarchyLegend;
 
-    public List<String> getHierarchyLegend() {
-        return List.of(hierarchyLegend.split(","));
-    }
-
-    public void setHierarchyLegend(List<String> hierarchyLegend) {
-        StringBuilder sb = new StringBuilder();
-        hierarchyLegend.forEach((el)-> sb.append(el).append(","));
-        if(!sb.isEmpty()){
-            sb.deleteCharAt(sb.length()-1);
-        }
-        this.hierarchyLegend = sb.toString();
-    }
 
 }

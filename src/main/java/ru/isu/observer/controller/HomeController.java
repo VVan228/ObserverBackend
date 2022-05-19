@@ -143,7 +143,7 @@ public class HomeController {
 
         Organisation org = new Organisation();
         org.setAdministrator(admin);
-        org.setHierarchyLegend(List.of("one","two","three"));
+        org.setHierarchyLegend(new ArrayList<>(List.of("one","two","three")));
         org.setName("isu");
 
         organisationRepo.save(org);
@@ -254,7 +254,7 @@ public class HomeController {
 
     @ResponseBody
     @RequestMapping(value = "/{ID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Page<Test> main(
+    public Hierarchy main(
             @PathVariable Long ID,
             @RequestParam Optional<String> sortBy,
             @RequestParam Optional<Integer> page,
@@ -280,7 +280,14 @@ public class HomeController {
         Boolean isAscB = isAsc.orElse(Boolean.TRUE);
         Sort.Direction dir = isAscB?Sort.Direction.ASC : Sort.Direction.DESC;
 
-        User user = userService.findUserByEmail("user@mail.ru");
+
+        User user = new User();
+        user.setName("bobillo");
+        user.setOrganisationId(1L);
+        user.setEmail("bobi@mail.ru");
+        userService.saveStudent(user);
+
+        Hierarchy hierarchy = hierarchyService.getHierarchy(2L);
 
         //return subjectService.getSubjectsPage(ID, dir, page.orElse(0), sortBy.orElse("id"));
         /*
@@ -291,12 +298,8 @@ public class HomeController {
                         sortBy.orElse("id")
                 )*/
 
-        return testService.getTestsForUserPage(1L, Role.STUDENT, PageRequest.of(
-                page.orElse(0),
-                PAGE_SIZE,
-                dir,
-                sortBy.orElse("id")
-        ));
+        hierarchyService.addStudentToHierarchy(hierarchy, user);
+        return hierarchyService.getHierarchyByOrganisation(1L);
     }
 
 }
