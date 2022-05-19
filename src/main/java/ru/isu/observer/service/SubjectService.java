@@ -62,19 +62,18 @@ public class SubjectService {
     public void setOrganisation(Long id, Long organisationId){
         subjectRepo.setOrganisation(id, organisationId);
     }
-    public Subject setOrganisation(Subject subject, Long organisationId){
+    public void setOrganisation(Subject subject, Long organisationId){
         subject.setOrganisationId(organisationId);
         subjectRepo.save(subject);
-        return subject;
     }
 
     @Transactional
     public void updateSubjectName(Long id, String name){
         subjectRepo.updateName(id, name);
     }
-    @Transactional
     public void updateSubjectName(Subject subject, String name){
-        updateSubjectName(subject.getId(), name);
+        subject.setName(name);
+        subjectRepo.save(subject);
     }
 
 
@@ -85,16 +84,14 @@ public class SubjectService {
         subjectRepo.save(subject);
         return subject;
     }
-    public Subject addTeacherToSubject(Subject subject, Long teacherId){
+    public void addTeacherToSubject(Subject subject, Long teacherId){
         User teacher = userService.getUser(teacherId);
         subject.addTeacher(teacher);
         subjectRepo.save(subject);
-        return subject;
     }
-    public Subject addTeacherToSubject(Subject subject, User teacher){
+    public void addTeacherToSubject(Subject subject, User teacher){
         subject.addTeacher(teacher);
         subjectRepo.save(subject);
-        return subject;
     }
     public Subject addTeacherToSubject(Long subjectId, User teacher){
         Subject subject = subjectRepo.getById(subjectId);

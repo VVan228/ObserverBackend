@@ -45,15 +45,13 @@ public class UserService {
     public void setOrganisation(Long id, Long organisationId){
         userRepo.setOrganisation(id, organisationId);
     }
-    public User setOrganisation(User user, Long organisationId){
+    public void setOrganisation(User user, Long organisationId){
         user.setOrganisationId(organisationId);
         userRepo.save(user);
-        return user;
     }
-    public User setOrganisation(User user, Organisation organisation){
+    public void setOrganisation(User user, Organisation organisation){
         user.setOrganisationId(organisation.getId());
         userRepo.save(user);
-        return user;
     }
     public void setOrganisation(Long id, Organisation organisation){
        setOrganisation(id, organisation.getId());
@@ -71,30 +69,27 @@ public class UserService {
     public void updateUserName(Long id, String name){
         userRepo.updateName(id, name);
     }
-    public User updateUserName(User user, String name){
+    public void updateUserName(User user, String name){
         user.setName(name);
         userRepo.save(user);
-        return user;
     }
 
     @Transactional
     public void updateUserEmail(Long id, String email){
         userRepo.updateEmail(id, email);
     }
-    public User updateUserEmail(User user, String email){
+    public void updateUserEmail(User user, String email){
         user.setEmail(email);
         userRepo.save(user);
-        return user;
     }
 
     @Transactional
     public void replaceRefreshToken(Long id, String refreshToken){
         userRepo.replaceRefreshToken(id, refreshToken);
     }
-    public User replaceRefreshToken(User user, String refreshToken){
+    public void replaceRefreshToken(User user, String refreshToken){
         user.setCurrentRefreshTokenHash(refreshToken);
         userRepo.save(user);
-        return user;
     }
 
     public Page<User> getStudentsPage(Long organisationId, Pageable pageable){
