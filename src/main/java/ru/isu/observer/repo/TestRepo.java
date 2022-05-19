@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface TestRepo extends JpaRepository<Test, Long> {
 
-    @Query("select t from Test t join t.openedFor u where u.id=:id")
+    @Query("select t from Test t join t.openedFor u where u=:id")
     List<Test> getTestsForStudent(@Param("id") Long id);
 
 
@@ -22,7 +22,7 @@ public interface TestRepo extends JpaRepository<Test, Long> {
     List<Test> getNotAutoCheckTests(@Param("id") Long teacherId);
 
 
-    @Query("select t from Test t join t.openedFor u where u.id=:id")
+    @Query("select t from Test t join t.openedFor u where u=:id")
     Page<Test> getTestsForStudentPage(Pageable pageable, @Param("id") Long id);
 
 

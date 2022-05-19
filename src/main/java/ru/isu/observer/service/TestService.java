@@ -85,20 +85,21 @@ public class TestService {
 
 
     public Page<Test> getTestsForUserPage(User user, Pageable pageable){
-        if(user.getRole() == Role.TEACHER){
+        return getTestsForUserPage(user.getId(), user.getRole(), pageable);
+    }
+    public Page<Test> getTestsForUserPage(Long userId, Role role, Pageable pageable) {
+        if(role == Role.TEACHER){
             return testRepo.getTestsForTeacherPage(
                     pageable,
-                    user.getId()
+                    userId
             );
-        }else if(user.getRole() == Role.STUDENT){
+        }else if(role == Role.STUDENT){
             return testRepo.getTestsForStudentPage(
                     pageable,
-                    user.getId());
+                    userId
+            );
         }
         return null;
-    }
-    public Page<Test> getTestsForUserPage(Long userId, Pageable pageable) {
-        return getTestsForUserPage(userService.getUser(userId), pageable);
     }
     public Page<Test> getNotAutoCheckTestsPage(Long teacherId, Pageable pageable){
         return testRepo.getNotAutoCheckTestsPage(

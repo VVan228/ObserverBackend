@@ -203,7 +203,7 @@ public class HomeController {
         Test test = new Test();
         test.setTimeLimit(10L);
         test.setQuestions(List.of(q1,q2));
-        test.setOpenedFor(Set.of(user1,user2));
+        test.setOpenedFor(Set.of(user1.getId(),user2.getId()));
         test.setAutoCheck(false);
         test.setSubject(subj);
         test.setCreator(user3);
@@ -254,7 +254,7 @@ public class HomeController {
 
     @ResponseBody
     @RequestMapping(value = "/{ID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Page<TestAnswer> main(
+    public Page<Test> main(
             @PathVariable Long ID,
             @RequestParam Optional<String> sortBy,
             @RequestParam Optional<Integer> page,
@@ -291,12 +291,12 @@ public class HomeController {
                         sortBy.orElse("id")
                 )*/
 
-        return testAnswerService.getStudentTestAnswersPage(PageRequest.of(
+        return testService.getTestsForUserPage(1L, Role.STUDENT, PageRequest.of(
                 page.orElse(0),
                 PAGE_SIZE,
                 dir,
                 sortBy.orElse("id")
-        ), 1L);
+        ));
     }
 
 }

@@ -24,8 +24,9 @@ public class Test {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     List<Question> questions = new ArrayList<>();
 
-    @ManyToMany
-    Set<User> openedFor = new HashSet<>();
+    //@ManyToMany
+    @ElementCollection
+    Set<Long> openedFor = new HashSet<>();
 
     boolean autoCheck;
 
