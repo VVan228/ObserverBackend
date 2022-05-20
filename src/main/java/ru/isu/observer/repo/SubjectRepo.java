@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.isu.observer.model.global.Subject;
+import ru.isu.observer.model.global.SubjectPlain;
 import ru.isu.observer.model.user.Role;
 import ru.isu.observer.model.user.User;
 
@@ -15,8 +16,8 @@ import java.util.List;
 
 public interface SubjectRepo extends JpaRepository<Subject, Long> {
 
-    @Query("select s from Subject s where s.organisationId = :organisationId")
-    List<Subject> getSubjectsOfOrganisation(@Param("organisationId") Long organisationId);
+    @Query("select new ru.isu.observer.model.global.SubjectPlain(s.id, s.name) from Subject s where s.organisationId = :organisationId")
+    List<SubjectPlain> getSubjectsOfOrganisation(@Param("organisationId") Long organisationId);
 
     @Query("select s from Subject s where s.organisationId = :organisationId")
     Page<Subject> getSubjectsOfOrganisation(Pageable pageable, @Param("organisationId") Long organisationId);

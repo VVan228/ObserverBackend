@@ -24,7 +24,7 @@ public class User {
 
     Role role;
 
-    @NotNull
+    //@NotNull
     Long organisationId;
 
 }

@@ -13,6 +13,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import ru.isu.observer.model.global.Subject;
+import ru.isu.observer.model.global.SubjectPlain;
 import ru.isu.observer.responses.EntityError;
 import ru.isu.observer.responses.EntityValidator;
 import ru.isu.observer.service.SubjectService;
@@ -43,8 +44,8 @@ public class SubjectController {
 
     @ResponseBody
     @RequestMapping(value="/subjects/get/all", produces = "application/json")
-    public List<Subject> getAllSubjects(){
-        return new ArrayList<>();
+    public List<SubjectPlain> getAllSubjects(){
+        return subjectService.getSubjects(1L);
     }
 
     @ResponseBody

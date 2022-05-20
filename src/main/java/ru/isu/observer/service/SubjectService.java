@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.isu.observer.model.global.Organisation;
 import ru.isu.observer.model.global.Subject;
+import ru.isu.observer.model.global.SubjectPlain;
 import ru.isu.observer.model.user.Role;
 import ru.isu.observer.model.user.User;
 import ru.isu.observer.repo.SubjectRepo;
@@ -36,19 +37,11 @@ public class SubjectService {
     }
 
 
-    public List<Subject> getSubjects(Long organisationId){
+    public List<SubjectPlain> getSubjects(Long organisationId){
         return subjectRepo.getSubjectsOfOrganisation(organisationId);
     }
-    public List<Subject> getSubjects(Organisation organisation){
+    public List<SubjectPlain> getSubjects(Organisation organisation){
         return getSubjects(organisation.getId());
-    }
-    public Page<Subject> getSubjectsPage(Organisation organisation, Pageable pageable){
-        return getSubjectsPage(organisation.getId(), pageable);
-    }
-    public Page<Subject> getSubjectsPage(Long organisationId, Pageable pageable){
-        return subjectRepo.getSubjectsOfOrganisation(
-                pageable,
-                organisationId);
     }
 
     public Subject getSubject(Long id){
