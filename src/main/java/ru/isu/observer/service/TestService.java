@@ -121,7 +121,7 @@ public class TestService {
 
     public List<String> getQuestionTypes(){
         List<String> res = new ArrayList<>();
-        for(Role r: Role.values()){
+        for(QuestionType r: QuestionType.values()){
             res.add(r.name());
         }
         return res;

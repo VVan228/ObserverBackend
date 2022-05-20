@@ -6,6 +6,7 @@ import ru.isu.observer.model.global.Subject;
 import ru.isu.observer.model.user.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
