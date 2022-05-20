@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import ru.isu.observer.model.user.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,11 +21,13 @@ public class Subject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "name must not be blank")
     String name;
 
     @OneToMany(cascade=CascadeType.ALL)
     Set<User> teachers = new HashSet<>();
 
+    @NotNull(message = "organisationId must not be null")
     Long organisationId;
 
     public void addTeacher(User user){

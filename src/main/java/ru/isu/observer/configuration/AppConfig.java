@@ -1,10 +1,12 @@
 package ru.isu.observer.configuration;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import ru.isu.observer.service.test_validation_strategies.*;
 
 @Configuration
+@ComponentScan(basePackages = "ru.isu.observer")
 public class AppConfig {
 
     @Bean

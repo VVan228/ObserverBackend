@@ -131,6 +131,7 @@ public class HomeController {
 
         Subject subject = new Subject();
         subject.setName("math");
+        subject.setOrganisationId(org.getId());
 
         subjectService.addSubject(subject);
         subjectService.addTeacherToSubject(subject.getId(), teacher.getId());
@@ -254,7 +255,7 @@ public class HomeController {
 
     @ResponseBody
     @RequestMapping(value = "/{ID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Hierarchy main(
+    public Subject main(
             @PathVariable Long ID,
             @RequestParam Optional<String> sortBy,
             @RequestParam Optional<Integer> page,
@@ -281,14 +282,6 @@ public class HomeController {
         Sort.Direction dir = isAscB?Sort.Direction.ASC : Sort.Direction.DESC;
 
 
-        User user = new User();
-        user.setName("bobillo");
-        user.setOrganisationId(1L);
-        user.setEmail("bobi@mail.ru");
-        userService.saveStudent(user);
-
-        Hierarchy hierarchy = hierarchyService.getHierarchy(2L);
-
         //return subjectService.getSubjectsPage(ID, dir, page.orElse(0), sortBy.orElse("id"));
         /*
         * PageRequest.of(
@@ -298,8 +291,8 @@ public class HomeController {
                         sortBy.orElse("id")
                 )*/
 
-        hierarchyService.addStudentToHierarchy(hierarchy, user);
-        return hierarchyService.getHierarchyByOrganisation(1L);
+
+        return subjectService.getSubject(ID);
     }
 
 }
