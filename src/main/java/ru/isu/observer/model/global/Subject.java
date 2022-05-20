@@ -21,13 +21,13 @@ public class Subject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "name must not be blank")
+    @NotBlank
     String name;
 
     @OneToMany(cascade=CascadeType.ALL)
     Set<User> teachers = new HashSet<>();
 
-    @NotNull(message = "organisationId must not be null")
+    @NotNull
     Long organisationId;
 
     public void addTeacher(User user){

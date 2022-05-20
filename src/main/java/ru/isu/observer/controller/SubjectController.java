@@ -5,6 +5,7 @@ import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +13,8 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import ru.isu.observer.model.global.Subject;
+import ru.isu.observer.responses.EntityError;
+import ru.isu.observer.responses.EntityValidator;
 import ru.isu.observer.service.SubjectService;
 
 import javax.persistence.EntityNotFoundException;
@@ -48,22 +51,16 @@ public class SubjectController {
     @RequestMapping(
             value="/subjects/save",
             method = RequestMethod.POST,
-            consumes = "application/json",
-            produces = "application/json"
+            consumes = "application/json"
     )
-    public List<String> saveSubject(
+    public ResponseEntity<List<EntityError>> saveSubject(
             @Valid @RequestBody Subject subject,
             Errors errors
     ){
-        if(errors.hasErrors()){
-            List<String> res = new ArrayList<>();
-            for(ObjectError err: errors.getAllErrors()){
-                res.add(err.getDefaultMessage());
-            }
-            return res;
+        if(!errors.hasErrors()){
+            subjectService.addSubject(subject);
         }
-        subjectService.addSubject(subject);
-        return null;
+        return EntityValidator.validate(errors);
     }
 
     @ResponseBody

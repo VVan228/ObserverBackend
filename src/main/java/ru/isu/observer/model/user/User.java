@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import ru.isu.observer.model.global.Organisation;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
@@ -23,6 +24,7 @@ public class User {
 
     Role role;
 
+    @NotNull
     Long organisationId;
 
 }

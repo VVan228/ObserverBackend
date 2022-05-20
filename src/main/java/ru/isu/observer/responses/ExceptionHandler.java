@@ -1,4 +1,4 @@
-package ru.isu.observer.controller;
+package ru.isu.observer.responses;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
