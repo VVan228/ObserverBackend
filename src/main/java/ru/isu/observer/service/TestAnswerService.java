@@ -11,6 +11,7 @@ import ru.isu.observer.model.test.TestAnswer;
 import ru.isu.observer.model.user.User;
 import ru.isu.observer.repo.TestAnswerRepo;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,9 @@ public class TestAnswerService {
 
     public List<TestAnswer> getTestAnswers(Long testId){
         return testAnswerRepo.getTestAnswersByTestId(testId);
+    }
+    public Page<TestAnswer> getTestAnswersPage(Pageable pageable, Long testId){
+        return testAnswerRepo.getTestAnswersByTestId(pageable, testId);
     }
     public List<TestAnswer> getTestAnswers(Test test){
         return getTestAnswers(test.getId());
@@ -72,8 +76,13 @@ public class TestAnswerService {
         }
 
         for(ScoredAnswer sa: scoredAnswers){
+            if(!studentTestAnswers.containsKey(sa.getQuestionId())){
+                throw new EntityNotFoundException("no such question '" + sa.getQuestionId() + "'");
+            }
             studentTestAnswers.get(sa.getQuestionId()).setScore(sa.getScore());
             studentTestAnswers.get(sa.getQuestionId()).setComment(sa.getComment());
+            Answer answer = studentTestAnswers.get(sa.getQuestionId()).getAnswer();
+            studentTestAnswers.get(sa.getQuestionId()).setAnswer(answer);
         }
 
 

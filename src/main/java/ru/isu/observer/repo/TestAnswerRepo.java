@@ -14,6 +14,8 @@ public interface TestAnswerRepo extends JpaRepository<TestAnswer, Long> {
 
     @Query("select ta from TestAnswer ta join ta.test t where t.id = :testId")
     List<TestAnswer> getTestAnswersByTestId(@Param("testId") Long testId);
+    @Query("select ta from TestAnswer ta join ta.test t where t.id = :testId")
+    Page<TestAnswer> getTestAnswersByTestId(Pageable pageable, @Param("testId") Long testId);
 
     @Query("select ta from TestAnswer ta join ta.student s where s.id=:id")
     List<TestAnswer> getStudentTestAnswers(@Param("id") Long userId);
@@ -22,7 +24,7 @@ public interface TestAnswerRepo extends JpaRepository<TestAnswer, Long> {
 
     @Query("select ta from TestAnswer ta join ta.student s where s.id=:id and ta.validated=true")
     List<TestAnswer> getStudentTestAnswersValidated(@Param("id") Long userId);
-    @Query("select ta from TestAnswer ta join ta.student s where s.id=:id and ta.validated=true")
+    @Query("select ta from TestAnswer ta where ta.student.id=:id and ta.validated=true")
     Page<TestAnswer> getStudentTestAnswersValidated(Pageable pageable, @Param("id") Long userId);
 
     @Modifying(clearAutomatically = true)

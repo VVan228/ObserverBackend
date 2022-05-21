@@ -30,7 +30,6 @@ public class HierarchyService {
 
     @Transactional
     public void createHierarchy(Hierarchy hierarchy){
-        System.out.println(hierarchy.getChildren().size());
         hierarchyRepo.save(hierarchy);
         setIds(hierarchy);
         hierarchyRepo.flush();

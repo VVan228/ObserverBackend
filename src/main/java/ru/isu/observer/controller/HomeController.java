@@ -178,12 +178,10 @@ public class HomeController {
 
         Variant var1 = new Variant();
         var1.setText("var1 q1");
+        var1.setId(1L);
         Variant var2 = new Variant();
         var2.setText("var2 q1");
-        Variant var3 = new Variant();
-        var3.setText("var1 q2");
-        Variant var4 = new Variant();
-        var4.setText("var2 q2");
+        var2.setId(2L);
 
         Question q1 = new Question();
         Question q2 = new Question();
