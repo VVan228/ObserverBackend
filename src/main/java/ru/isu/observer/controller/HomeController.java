@@ -255,7 +255,7 @@ public class HomeController {
 
     @ResponseBody
     @RequestMapping(value = "/{ID}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Subject main(
+    public Hierarchy main(
             @PathVariable Long ID,
             @RequestParam Optional<String> sortBy,
             @RequestParam Optional<Integer> page,
@@ -292,7 +292,7 @@ public class HomeController {
                 )*/
 
 
-        return subjectService.getSubject(ID);
+        return hierarchyService.getHierarchy(1L);
     }
 
 }

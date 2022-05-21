@@ -31,9 +31,7 @@ public class TestController {
     private Integer PAGE_SIZE;
     TestService testService;
     SmartValidator validator;
-    //for test purposes
-    @Autowired
-    UserService userService;
+
 
 
     @Autowired
