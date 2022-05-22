@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.isu.observer.model.user.Permission;
+import ru.isu.observer.security.JwtConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -23,11 +24,10 @@ import ru.isu.observer.model.user.Permission;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
-    UserDetailsService userDetailsService;
+    JwtConfigurer jwtConfigurer;
 
-    @Autowired
-    SecurityConfig(@Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService){
-        this.userDetailsService = userDetailsService;
+    SecurityConfig(JwtConfigurer jwtConfigurer){
+        this.jwtConfigurer = jwtConfigurer;
     }
 
 
@@ -44,19 +44,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                  .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                  .and()
                  .authorizeRequests()
-                 .antMatchers("/").permitAll()//authenticated()
+                 .antMatchers("/auth/login").permitAll()
+                 .antMatchers("/auth/logout").authenticated()
                  //.antMatchers("/hierarchy").hasAnyAuthority(Permission.HIERARCHY_READ.getPermission())
                  .anyRequest().authenticated()
                  .and()
-                 .httpBasic();
+                 .apply(jwtConfigurer);
     }
 
     @Bean
-    protected DaoAuthenticationProvider daoAuthenticationProvider() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
-        return daoAuthenticationProvider;
+
+    public AuthenticationManager authenticationManagerBean() throws Exception{
+        return super.authenticationManagerBean();
     }
 
     @Bean
@@ -64,9 +63,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder(12);
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(daoAuthenticationProvider());
-    }
 
 }

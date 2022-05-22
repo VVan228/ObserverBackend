@@ -252,7 +252,11 @@ public class HomeController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/{ID}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(
+            value = "/{ID}",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            method = RequestMethod.GET
+    )
     public Hierarchy main(
             @PathVariable Long ID,
             @RequestParam Optional<String> sortBy,

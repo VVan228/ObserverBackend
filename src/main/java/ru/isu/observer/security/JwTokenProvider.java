@@ -20,7 +20,7 @@ import java.util.Date;
 public class JwTokenProvider {
 
     @Value("${jwt.access_expiration}")
-    private long validityInMilliseconds;
+    private long accessValidity;
     @Value("${jwt.secret}")
     private String secretKey;
     @Value("${jwt.header}")
@@ -42,7 +42,7 @@ public class JwTokenProvider {
         claims.put("role", role);
         claims.put("organisation", organisationId);
         Date now = new Date();
-        Date validity = new Date(now.getTime() + validityInMilliseconds * 1000);
+        Date validity = new Date(now.getTime() + accessValidity * 1000);
 
         return Jwts.builder()
                 .setClaims(claims)
