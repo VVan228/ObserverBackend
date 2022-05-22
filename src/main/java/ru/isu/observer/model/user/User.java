@@ -24,6 +24,8 @@ public class User {
 
     Role role;
 
+    Status status;
+
     //@NotNull
     Long organisationId;
 

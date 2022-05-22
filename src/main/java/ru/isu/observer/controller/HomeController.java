@@ -69,7 +69,7 @@ public class HomeController {
     public void loadUsers(){
         User user = new User();
         user.setEmail("user@mail.ru");
-        user.setPassword("user");
+        user.setPassword("$2a$12$E41RoerlAVyqzz0KVcHEkOhEtSoUs4OgeCmbIiIJO33dh1O0NlxOO");
         user.setName("user");
 
         User user2 = new User();
@@ -260,7 +260,7 @@ public class HomeController {
             @RequestParam Optional<Boolean> isAsc
             ) {
 
-        if(!loaded){
+        /*if(!loaded){
             loadUsers();
             loadOrganisation();
             setOrganisationToUsers();
@@ -273,7 +273,7 @@ public class HomeController {
 
 
             loaded = true;
-        }
+        }*/
 
 
         Boolean isAscB = isAsc.orElse(Boolean.TRUE);
