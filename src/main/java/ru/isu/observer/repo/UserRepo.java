@@ -21,6 +21,9 @@ public interface UserRepo extends JpaRepository<User, Long> {
     @Query("update User u set u.name = :name where u.id = :id")
     void updateName(@Param(value = "id") Long id, @Param(value = "name") String name);
 
+    @Query("select u.currentRefreshTokenHash from User u where u.email=:email")
+    String getRefreshTokenByEmail(@Param("email") String email);
+
 
     @Modifying(clearAutomatically = true)
     @Query(value = "update User u set u.email = :email where u.id = :id")

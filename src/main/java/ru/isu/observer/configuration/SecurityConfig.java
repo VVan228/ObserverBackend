@@ -45,6 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                  .and()
                  .authorizeRequests()
                  .antMatchers("/auth/login").permitAll()
+                 .antMatchers("/auth/updateAccessToken").permitAll()
                  .antMatchers("/auth/logout").authenticated()
                  //.antMatchers("/hierarchy").hasAnyAuthority(Permission.HIERARCHY_READ.getPermission())
                  .anyRequest().authenticated()

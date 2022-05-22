@@ -21,6 +21,8 @@ public class JwTokenProvider {
 
     @Value("${jwt.access_expiration}")
     private long accessValidity;
+    @Value("${jwt.refresh_expiration}")
+    private long refreshValidity;
     @Value("${jwt.secret}")
     private String secretKey;
     @Value("${jwt.header}")
@@ -37,12 +39,25 @@ public class JwTokenProvider {
         this.userDetailsService = userDetailsService;
     }
 
-    public String createToken(String email, String role, Long organisationId){
+    public String createAccessToken(String email, String role, Long organisationId){
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("role", role);
         claims.put("organisation", organisationId);
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessValidity * 1000);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    public String createRefreshToken(String email){
+        Claims claims = Jwts.claims().setSubject(email);
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + refreshValidity * 1000);
 
         return Jwts.builder()
                 .setClaims(claims)

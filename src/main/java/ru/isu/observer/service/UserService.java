@@ -92,6 +92,10 @@ public class UserService {
         userRepo.save(user);
     }
 
+    public String getRefreshToken(String email){
+        return userRepo.getRefreshTokenByEmail(email);
+    }
+
     public Page<User> getStudentsPage(Long organisationId, Pageable pageable){
         return userRepo.getUsersOfOrganisation(
                 pageable,

@@ -8,9 +8,28 @@ import java.util.stream.Collectors;
 
 @Getter
 public enum Role {
-    STUDENT(Set.of()),
-    TEACHER(Set.of(Permission.HIERARCHY_READ)),
-    ADMIN(Set.of(Permission.HIERARCHY_WRITE, Permission.HIERARCHY_READ));
+    STUDENT(Set.of(
+            Permission.TESTS_GET,
+            Permission.TEST_ANSWERS_GET,
+            Permission.TEST_ANSWERS_CREATE
+    )),
+    TEACHER(Set.of(
+            Permission.TESTS_CREATE,
+            Permission.TESTS_EDIT,
+            Permission.TESTS_GET,
+            Permission.HIERARCHY_READ,
+            Permission.TEST_ANSWERS_EDIT,
+            Permission.TEST_ANSWERS_GET
+    )),
+    ADMIN(Set.of(
+            Permission.HIERARCHY_WRITE,
+            Permission.HIERARCHY_READ,
+            Permission.USERS_CREATE,
+            Permission.USERS_GET,
+            Permission.SUBJECTS_CREATE,
+            Permission.SUBJECTS_EDIT,
+            Permission.SUBJECTS_GET
+    ));
 
     private final Set<Permission> permissions;
 
