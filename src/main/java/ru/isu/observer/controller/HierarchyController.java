@@ -14,6 +14,7 @@ import ru.isu.observer.model.hierarchy.HierarchyBranchPlain;
 import ru.isu.observer.model.hierarchy.HierarchyRoot;
 import ru.isu.observer.responses.EntityError;
 import ru.isu.observer.responses.EntityValidator;
+import ru.isu.observer.security.SecurityUser;
 import ru.isu.observer.service.HierarchyService;
 
 import javax.validation.Valid;
@@ -35,10 +36,7 @@ public class HierarchyController {
         this.hierarchyService = hierarchyService;
         this.validator = validator;
     }
-    Sort.Direction getDir(Optional<Boolean> isAsc){
-        Boolean isAscB = isAsc.orElse(Boolean.TRUE);
-        return isAscB?Sort.Direction.ASC : Sort.Direction.DESC;
-    }
+
 
 
     @ResponseBody
@@ -51,8 +49,8 @@ public class HierarchyController {
             @Valid @RequestBody Map<String,Object> bod,
             BindingResult result
     ){
-        //get org from user
-        HierarchyRoot h = hierarchyService.getHierarchyFromMap(bod, 1L);
+        SecurityUser ud = SecurityUser.getCurrent();
+        HierarchyRoot h = hierarchyService.getHierarchyFromMap(bod, ud.getUser().getOrganisationId());
         validator.validate(h, result);
         if(!result.hasErrors()){
             hierarchyService.createHierarchy(h);
@@ -79,9 +77,9 @@ public class HierarchyController {
     public List<HierarchyBranchPlain> getByLevel(
             @PathVariable int level
     ){
-        //will get org from user
+        SecurityUser ud = SecurityUser.getCurrent();
         return hierarchyService.getLevelOfHierarchy(
-                hierarchyService.getHierarchyIdByOrganisation(1L),
+                hierarchyService.getHierarchyIdByOrganisation(ud.getUser().getOrganisationId()),
                 level
         );
     }
@@ -91,8 +89,8 @@ public class HierarchyController {
             value="/hierarchy/get/labels"
     )
     public List<String> getLabels(){
-        //will get org from user
-        return hierarchyService.getLabelsOfHierarchyByOrganisation(1L);
+        SecurityUser ud = SecurityUser.getCurrent();
+        return hierarchyService.getLabelsOfHierarchyByOrganisation(ud.getUser().getOrganisationId());
     }
 
     @ResponseBody
@@ -100,8 +98,8 @@ public class HierarchyController {
             value = "/hierarchy/get/fullTree"
     )
     public Hierarchy getFullTree(){
-        //will get org from user
-        return hierarchyService.getHierarchy(hierarchyService.getHierarchyIdByOrganisation(1L));
+        SecurityUser ud = SecurityUser.getCurrent();
+        return hierarchyService.getHierarchy(hierarchyService.getHierarchyIdByOrganisation(ud.getUser().getOrganisationId()));
     }
 
 }

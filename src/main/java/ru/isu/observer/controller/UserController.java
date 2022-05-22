@@ -7,13 +7,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import ru.isu.observer.model.global.Subject;
+import ru.isu.observer.model.user.Status;
 import ru.isu.observer.model.user.User;
 import ru.isu.observer.responses.EntityError;
 import ru.isu.observer.responses.EntityValidator;
+import ru.isu.observer.security.SecurityUser;
 import ru.isu.observer.service.UserService;
 
 import javax.validation.Valid;
@@ -46,7 +50,9 @@ public class UserController {
             @Valid @RequestBody User user,
             Errors errors
     ){
+        SecurityUser ud = SecurityUser.getCurrent();
         if(!errors.hasErrors()){
+            user.setOrganisationId(ud.getUser().getOrganisationId());
             userService.saveStudent(user);
         }
         return EntityValidator.validate(errors);
@@ -62,7 +68,9 @@ public class UserController {
             @Valid @RequestBody User user,
             Errors errors
     ){
+        SecurityUser ud = SecurityUser.getCurrent();
         if(!errors.hasErrors()){
+            user.setOrganisationId(ud.getUser().getOrganisationId());
             userService.saveTeacher(user);
         }
         return EntityValidator.validate(errors);
@@ -79,7 +87,8 @@ public class UserController {
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Boolean> isAsc
     ){
-        return userService.getStudentsPage(1L,
+        SecurityUser ud = SecurityUser.getCurrent();
+        return userService.getStudentsPage(ud.getUser().getOrganisationId(),
                 PageRequest.of(
                         page.orElse(0),
                         PAGE_SIZE,
@@ -100,7 +109,8 @@ public class UserController {
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Boolean> isAsc
     ){
-        return userService.getTeachersPage(1L,
+        SecurityUser ud = SecurityUser.getCurrent();
+        return userService.getTeachersPage(ud.getUser().getOrganisationId(),
                 PageRequest.of(
                         page.orElse(0),
                         PAGE_SIZE,
@@ -117,7 +127,8 @@ public class UserController {
             method = RequestMethod.POST
     )
     public void updateName(@PathVariable String name){
-        userService.updateUserName(1L, name);
+        SecurityUser ud = SecurityUser.getCurrent();
+        userService.updateUserName(ud.getUser().getId(), name);
     }
 
 
@@ -127,7 +138,8 @@ public class UserController {
             method = RequestMethod.POST
     )
     public void updateEmail(@PathVariable String email){
-        userService.updateUserEmail(1L, email);
+        SecurityUser ud = SecurityUser.getCurrent();
+        userService.updateUserEmail(ud.getUser().getId(), email);
     }
 
     @ResponseBody
@@ -140,4 +152,7 @@ public class UserController {
     }
 
 
+    //private SecurityUser getCurrentSecurityUser(){
+    //    return  ((SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+    //}
 }

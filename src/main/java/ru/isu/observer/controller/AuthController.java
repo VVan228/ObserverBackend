@@ -60,7 +60,7 @@ public class AuthController {
 
         } catch (AuthenticationException e) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", e.getMessage());
+            response.put("message", "Invalid email/password combination");
             return ResponseEntity.badRequest().body(response);
         }
     }

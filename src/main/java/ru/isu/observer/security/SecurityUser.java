@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import ru.isu.observer.model.user.Status;
 import ru.isu.observer.model.user.User;
@@ -20,12 +21,14 @@ public class SecurityUser implements UserDetails {
     private final String password;
     private final Set<SimpleGrantedAuthority> authorities;
     private final boolean isActive;
+    private final User user;
 
-    public SecurityUser(String email, String password, Set<SimpleGrantedAuthority> authorities, boolean isActive) {
+    public SecurityUser(String email, String password, Set<SimpleGrantedAuthority> authorities, boolean isActive, User user) {
         this.email = email;
         this.password = password;
         this.authorities = authorities;
         this.isActive = isActive;
+        this.user = user;
     }
 
     @Override
@@ -80,7 +83,12 @@ public class SecurityUser implements UserDetails {
         return new SecurityUser(
                 user.getEmail(), user.getPassword(),
                 user.getRole().getAuthorities(),
-                user.getStatus().equals(Status.ACTIVE)
+                user.getStatus().equals(Status.ACTIVE),
+                user
         );
+    }
+
+    public static SecurityUser getCurrent(){
+        return  ((SecurityUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     }
 }

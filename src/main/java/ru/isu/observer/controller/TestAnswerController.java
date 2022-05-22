@@ -17,6 +17,7 @@ import ru.isu.observer.model.test.TestAnswerPlain;
 import ru.isu.observer.repo.TestAnswerRepo;
 import ru.isu.observer.responses.EntityError;
 import ru.isu.observer.responses.EntityValidator;
+import ru.isu.observer.security.SecurityUser;
 import ru.isu.observer.service.TestAnswerService;
 import ru.isu.observer.service.UserService;
 
@@ -31,9 +32,7 @@ public class TestAnswerController {
     @Value("${pages.size}")
     private Integer PAGE_SIZE;
     TestAnswerService testAnswerService;
-    //for test purposes
-    @Autowired
-    UserService userService;
+
 
     @Autowired
     public TestAnswerController(TestAnswerService testAnswerService) {
@@ -119,11 +118,11 @@ public class TestAnswerController {
             @Valid @RequestBody TestAnswerPlain testAnswerPlain,
             BindingResult result
     ){
-        //will get user from context
+        SecurityUser ud = SecurityUser.getCurrent();
         if(!result.hasErrors()){
             testAnswerService.createTestAnswer(
                     testAnswerPlain.getTestId(),
-                    userService.getUser(1L),
+                    ud.getUser(),
                     testAnswerPlain.getAnswers()
             );
         }

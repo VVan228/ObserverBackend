@@ -17,6 +17,7 @@ import ru.isu.observer.model.user.Role;
 import ru.isu.observer.model.user.User;
 import ru.isu.observer.responses.EntityError;
 import ru.isu.observer.responses.EntityValidator;
+import ru.isu.observer.security.SecurityUser;
 import ru.isu.observer.service.TestService;
 import ru.isu.observer.service.UserService;
 
@@ -72,11 +73,9 @@ public class TestController {
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Boolean> isAsc
     ){
-        //1L STUDENT
-        //3L TEACHER
-        //gonna take user from security context tho
+        SecurityUser ud = SecurityUser.getCurrent();
         return testService.getTestsForUserPage(
-                3L, Role.TEACHER,
+                ud.getUser().getId(), ud.getUser().getRole(),
                 PageRequest.of(
                         page.orElse(0),
                         PAGE_SIZE,
@@ -96,8 +95,9 @@ public class TestController {
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Boolean> isAsc
     ){
+        SecurityUser ud = SecurityUser.getCurrent();
         return testService.getNotAutoCheckTestsPage(
-                3L,
+                ud.getUser().getId(),
                 PageRequest.of(
                         page.orElse(0),
                         PAGE_SIZE,

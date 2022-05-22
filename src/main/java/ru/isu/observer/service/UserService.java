@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.isu.observer.model.global.Organisation;
 import ru.isu.observer.model.user.Role;
+import ru.isu.observer.model.user.Status;
 import ru.isu.observer.model.user.User;
 import ru.isu.observer.repo.UserRepo;
 
@@ -31,6 +32,7 @@ public class UserService {
 
     public void saveStudent(User user){
         user.setRole(Role.STUDENT);
+        user.setStatus(Status.ACTIVE);
         userRepo.save(user);
     }
     public void saveUser(User user){
@@ -69,18 +71,10 @@ public class UserService {
     public void updateUserName(Long id, String name){
         userRepo.updateName(id, name);
     }
-    public void updateUserName(User user, String name){
-        user.setName(name);
-        userRepo.save(user);
-    }
 
     @Transactional
     public void updateUserEmail(Long id, String email){
         userRepo.updateEmail(id, email);
-    }
-    public void updateUserEmail(User user, String email){
-        user.setEmail(email);
-        userRepo.save(user);
     }
 
     @Transactional

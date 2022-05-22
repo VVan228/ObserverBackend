@@ -16,6 +16,7 @@ import ru.isu.observer.model.global.Subject;
 import ru.isu.observer.model.global.SubjectPlain;
 import ru.isu.observer.responses.EntityError;
 import ru.isu.observer.responses.EntityValidator;
+import ru.isu.observer.security.SecurityUser;
 import ru.isu.observer.service.SubjectService;
 
 import javax.persistence.EntityNotFoundException;
@@ -45,7 +46,8 @@ public class SubjectController {
     @ResponseBody
     @RequestMapping(value="/subjects/get/all", produces = "application/json")
     public List<SubjectPlain> getAllSubjects(){
-        return subjectService.getSubjects(1L);
+        SecurityUser ud = SecurityUser.getCurrent();
+        return subjectService.getSubjects(ud.getUser().getOrganisationId());
     }
 
     @ResponseBody
