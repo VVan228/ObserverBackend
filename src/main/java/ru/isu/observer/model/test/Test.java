@@ -1,5 +1,6 @@
 package ru.isu.observer.model.test;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.hibernate.annotations.BatchSize;
 import ru.isu.observer.model.global.Subject;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 @Data
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 public class Test {
 
@@ -31,8 +33,7 @@ public class Test {
 
     boolean autoCheck;
 
-    @ManyToOne
-    Subject subject;
+    Long subjectId;
 
     @ManyToOne
     User creator;

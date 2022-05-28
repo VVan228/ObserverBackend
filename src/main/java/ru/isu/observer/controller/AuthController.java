@@ -12,10 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import ru.isu.observer.model.user.AuthRequest;
 import ru.isu.observer.model.user.User;
 import ru.isu.observer.security.JwTokenProvider;
@@ -28,6 +25,7 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 
+//@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
 public class AuthController {
 
@@ -59,6 +57,7 @@ public class AuthController {
             return updateTokens(user);
 
         } catch (AuthenticationException e) {
+            System.out.println(e.getMessage());
             Map<String, String> response = new HashMap<>();
             response.put("message", "Invalid email/password combination");
             return ResponseEntity.badRequest().body(response);
@@ -88,6 +87,8 @@ public class AuthController {
     )
     public ResponseEntity<Map<String, String>> updateToken(@RequestBody UpdateTokenRequest updateTokenRequest){
 
+        System.out.println("update token request");
+
         String refreshToken = updateTokenRequest.getRefresh_token();
 
         boolean isValid = jwtTokenProvider.validateToken(refreshToken);
@@ -109,7 +110,7 @@ public class AuthController {
 
     private ResponseEntity<Map<String, String>> updateTokens(User user){
         String access_token = jwtTokenProvider.createAccessToken(user.getEmail(), user.getRole().name(), user.getOrganisationId());
-        String refresh_token = jwtTokenProvider.createRefreshToken(user.getEmail());
+        String refresh_token = jwtTokenProvider.createRefreshToken(user.getEmail(), user.getRole().name());
 
         userService.replaceRefreshToken(user, passwordEncoder.encode(refresh_token));
 

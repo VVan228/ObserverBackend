@@ -38,6 +38,18 @@ public class TestService {
 
     public Test createTest(Test test, List<Long> hierarchyIds){
 
+        if(hierarchyIds==null || hierarchyIds.isEmpty()){
+            hierarchyIds = new ArrayList<>(List.of(hierarchyService.getHierarchyIdByOrganisation(test.getCreator().getOrganisationId())));
+        }
+
+        boolean autoCheck = true;
+        for(Question q: test.getQuestions()){
+            if(q.getQuestionType() == QuestionType.OpenQuestionCheck){
+                autoCheck = false;
+            }
+        }
+        test.setAutoCheck(autoCheck);
+
         List<Hierarchy> nodes = new ArrayList<>();
 
         for(Long id: hierarchyIds){
@@ -61,56 +73,23 @@ public class TestService {
 
     }
 
-    public List<Test> getTestsForUser(Long userId, Role role){
-        if(role == Role.TEACHER){
-            return testRepo.getTestsForTeacher(userId);
-        }else if(role == Role.STUDENT){
-            return testRepo.getTestsForStudent(userId);
-        }
-        return null;
-    }
-    public List<Test> getTestsForUser(User user){
-        return getTestsForUser(user.getId(), user.getRole());
-    }
-    public List<Test> getTestsForUser(Long userId){
-        return getTestsForUser(userService.getUser(userId));
-    }
-    public List<Test> getNotAutoCheckTests(Long teacherId){
-        return testRepo.getNotAutoCheckTests(teacherId);
-    }
-    public List<Test> getNotAutoCheckTests(User teacher){
-        return testRepo.getNotAutoCheckTests(teacher.getId());
-    }
 
 
 
-    public Page<Test> getTestsForUserPage(User user, Pageable pageable){
-        return getTestsForUserPage(user.getId(), user.getRole(), pageable);
-    }
-    public Page<Test> getTestsForUserPage(Long userId, Role role, Pageable pageable) {
-        if(role == Role.TEACHER){
-            return testRepo.getTestsForTeacherPage(
-                    pageable,
-                    userId
-            );
-        }else if(role == Role.STUDENT){
-            return testRepo.getTestsForStudentPage(
-                    pageable,
-                    userId
-            );
-        }
-        return null;
-    }
-    public Page<Test> getNotAutoCheckTestsPage(Long teacherId, Pageable pageable){
-        return testRepo.getNotAutoCheckTestsPage(
+    public Page<Test> getAutoCheckTestsPage(Long teacherId, Pageable pageable){
+        return testRepo.getAutoCheckTestsPage(
                 pageable,
-                teacherId
+                teacherId,
+                false
         );
     }
-    public Page<Test> getNotAutoCheckTestsPage(User teacher, Pageable pageable){
-        return testRepo.getNotAutoCheckTestsPage(
+
+
+    public Page<Test> getNotAutoCheckTestsPage(Long teacherId, Pageable pageable){
+        return testRepo.getAutoCheckTestsPage(
                 pageable,
-                teacher.getId()
+                teacherId,
+                true
         );
     }
 
@@ -125,6 +104,14 @@ public class TestService {
             res.add(r.name());
         }
         return res;
+    }
+
+    public Page<Test>getTestsWithNoStudentAnswer(Long studentId, Pageable pageable){
+        return testRepo.getTestsWithNoStudentAnswer(pageable, studentId);
+    }
+
+    public Page<Test>getTestsWithStudentAnswer(Long studentId, Pageable pageable){
+        return testRepo.getTestsWithNoStudentAnswer(pageable, studentId);
     }
 
 }

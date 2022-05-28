@@ -29,6 +29,14 @@ public interface TestRepo extends JpaRepository<Test, Long> {
     @Query("select t from Test t where t.creator.id=:id")
     Page<Test> getTestsForTeacherPage(Pageable pageable, @Param("id") Long id);
 
-    @Query("select t from Test t where t.creator.id=:id and t.autoCheck=false")
-    Page<Test> getNotAutoCheckTestsPage(Pageable pageable, @Param("id") Long teacherId);
+    @Query("select t from Test t where t.creator.id=:id and t.autoCheck=:toCheck")
+    Page<Test> getAutoCheckTestsPage(Pageable pageable, @Param("id") Long teacherId, @Param("toCheck") boolean toCheck);
+
+    @Query("select t from Test t join t.openedFor u " +
+            "where u=:studentId and u not in (select ta.student.id from TestAnswer ta where ta.testId=t.id)")
+    Page<Test> getTestsWithNoStudentAnswer(Pageable pageable, @Param("studentId") Long studentId);
+
+    @Query("select t from Test t join t.openedFor u " +
+            "where u=:studentId and u in (select ta.student.id from TestAnswer ta where ta.testId=t.id)")
+    Page<Test> getTestsWithStudentAnswer(Pageable pageable, @Param("studentId") Long studentId);
 }

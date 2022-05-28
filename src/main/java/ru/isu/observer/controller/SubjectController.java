@@ -14,6 +14,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import ru.isu.observer.model.global.Subject;
 import ru.isu.observer.model.global.SubjectPlain;
+import ru.isu.observer.model.user.Role;
 import ru.isu.observer.responses.EntityError;
 import ru.isu.observer.responses.EntityValidator;
 import ru.isu.observer.security.SecurityUser;
@@ -24,6 +25,7 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
+//@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
 public class SubjectController {
 
@@ -47,7 +49,12 @@ public class SubjectController {
     @RequestMapping(value="/subjects/get/all", produces = "application/json")
     public List<SubjectPlain> getAllSubjects(){
         SecurityUser ud = SecurityUser.getCurrent();
-        return subjectService.getSubjects(ud.getUser().getOrganisationId());
+        if(ud.getUser().getRole() == Role.ADMIN){
+            return subjectService.getSubjects(ud.getUser().getOrganisationId());
+        }else if(ud.getUser().getRole() == Role.TEACHER){
+            return subjectService.getSubjectsForTeacher(ud.getUser().getId());
+        }
+        return null;
     }
 
     @ResponseBody
@@ -60,7 +67,9 @@ public class SubjectController {
             @Valid @RequestBody Subject subject,
             Errors errors
     ){
+        SecurityUser ud = SecurityUser.getCurrent();
         if(!errors.hasErrors()){
+            subject.setOrganisationId(ud.getUser().getOrganisationId());
             subjectService.addSubject(subject);
         }
         return EntityValidator.validate(errors);

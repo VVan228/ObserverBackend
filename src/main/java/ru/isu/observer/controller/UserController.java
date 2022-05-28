@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -24,16 +25,19 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
+//@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
 public class UserController {
 
     @Value("${pages.size}")
     private Integer PAGE_SIZE;
     UserService userService;
+    PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
     Sort.Direction getDir(Optional<Boolean> isAsc){
         Boolean isAscB = isAsc.orElse(Boolean.TRUE);
@@ -53,6 +57,8 @@ public class UserController {
         SecurityUser ud = SecurityUser.getCurrent();
         if(!errors.hasErrors()){
             user.setOrganisationId(ud.getUser().getOrganisationId());
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setStatus(Status.ACTIVE);
             userService.saveStudent(user);
         }
         return EntityValidator.validate(errors);
@@ -71,6 +77,8 @@ public class UserController {
         SecurityUser ud = SecurityUser.getCurrent();
         if(!errors.hasErrors()){
             user.setOrganisationId(ud.getUser().getOrganisationId());
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setStatus(Status.ACTIVE);
             userService.saveTeacher(user);
         }
         return EntityValidator.validate(errors);

@@ -1,5 +1,6 @@
 package ru.isu.observer.model.hierarchy;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
 
@@ -14,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @Inheritance(strategy = InheritanceType.JOINED)
-
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Hierarchy {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

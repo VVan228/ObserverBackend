@@ -19,6 +19,9 @@ public interface SubjectRepo extends JpaRepository<Subject, Long> {
     @Query("select new ru.isu.observer.model.global.SubjectPlain(s.id, s.name) from Subject s where s.organisationId = :organisationId")
     List<SubjectPlain> getSubjectsOfOrganisation(@Param("organisationId") Long organisationId);
 
+    @Query("select new ru.isu.observer.model.global.SubjectPlain(s.id, s.name) from Subject s join s.teachers t where t=:userId")
+    List<SubjectPlain> getSubjectsForTeacher(@Param("userId") Long userId);
+
     @Query("select s from Subject s where s.organisationId = :organisationId")
     Page<Subject> getSubjectsOfOrganisation(Pageable pageable, @Param("organisationId") Long organisationId);
 

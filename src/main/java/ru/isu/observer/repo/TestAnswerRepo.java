@@ -12,10 +12,12 @@ import java.util.List;
 
 public interface TestAnswerRepo extends JpaRepository<TestAnswer, Long> {
 
-    @Query("select ta from TestAnswer ta join ta.test t where t.id = :testId")
+    @Query("select ta from TestAnswer ta where ta.testId = :testId")
     List<TestAnswer> getTestAnswersByTestId(@Param("testId") Long testId);
-    @Query("select ta from TestAnswer ta join ta.test t where t.id = :testId")
-    Page<TestAnswer> getTestAnswersByTestId(Pageable pageable, @Param("testId") Long testId);
+    @Query("select ta from TestAnswer ta where ta.testId = :testId and ta.validated=true")
+    Page<TestAnswer> getTestAnswersByTestIdValidated(Pageable pageable, @Param("testId") Long testId);
+    @Query("select ta from TestAnswer ta where ta.testId = :testId and ta.validated=false")
+    Page<TestAnswer> getTestAnswersByTestIdNotValidated(Pageable pageable, @Param("testId") Long testId);
 
     @Query("select ta from TestAnswer ta join ta.student s where s.id=:id")
     List<TestAnswer> getStudentTestAnswers(@Param("id") Long userId);
@@ -26,6 +28,9 @@ public interface TestAnswerRepo extends JpaRepository<TestAnswer, Long> {
     List<TestAnswer> getStudentTestAnswersValidated(@Param("id") Long userId);
     @Query("select ta from TestAnswer ta where ta.student.id=:id and ta.validated=true")
     Page<TestAnswer> getStudentTestAnswersValidated(Pageable pageable, @Param("id") Long userId);
+
+    @Query("select ta from TestAnswer ta where ta.student.id=:id and ta.validated=false")
+    Page<TestAnswer> getStudentTestAnswersNotValidated(Pageable pageable, @Param("id") Long userId);
 
     @Modifying(clearAutomatically = true)
     @Query("update TestAnswer ta set ta.totalScore = :score where ta.id = :id")

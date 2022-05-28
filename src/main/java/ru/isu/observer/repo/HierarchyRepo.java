@@ -12,7 +12,7 @@ public interface HierarchyRepo extends JpaRepository<Hierarchy, Long> {
     @Query("select o.hierarchyLegend from Organisation o where o.id=:organisationId")
     String getHierarchyLabelsByOrganisation(@Param("organisationId") Long organisationId);
 
-    @Query("select o.id from HierarchyRoot h join h.organisation o where o.id=:organisationId")
+    @Query("select h.id from HierarchyRoot h join h.organisation o where o.id=:organisationId")
     Long getHierarchyIdByOrganisation(@Param("organisationId") Long organisationId);
 
     @Query("select hh.id from Hierarchy h join h.children hh where h.id=:rootId")

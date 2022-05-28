@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+//@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Controller
 public class TestAnswerController {
 
@@ -52,16 +53,29 @@ public class TestAnswerController {
             @PathVariable Long testId,
             @RequestParam Optional<String> sortBy,
             @RequestParam Optional<Integer> page,
-            @RequestParam Optional<Boolean> isAsc
+            @RequestParam Optional<Boolean> isAsc,
+            @RequestParam Optional<Boolean> validated
     ){
-        return testAnswerService.getTestAnswersPage(
-                PageRequest.of(
-                    page.orElse(0),
-                    PAGE_SIZE,
-                    getDir(isAsc),
-                    sortBy.orElse("id")
-                ),
-                testId);
+        boolean getValidatedOnly = validated.orElse(Boolean.FALSE);
+        if(getValidatedOnly){
+            return testAnswerService.getValidatedTestAnswersPage(
+                    PageRequest.of(
+                            page.orElse(0),
+                            PAGE_SIZE,
+                            getDir(isAsc),
+                            sortBy.orElse("id")
+                    ),
+                    testId);
+        }else{
+            return testAnswerService.getNotValidatedTestAnswersPage(
+                    PageRequest.of(
+                            page.orElse(0),
+                            PAGE_SIZE,
+                            getDir(isAsc),
+                            sortBy.orElse("id")
+                    ),
+                    testId);
+        }
     }
 
 
@@ -75,17 +89,17 @@ public class TestAnswerController {
 
     @ResponseBody
     @RequestMapping(
-            value = "/testAnswers/get/byStudent/{userId}"
+            value = "/testAnswers/get/byStudent"
     )
     public Page<TestAnswer> getByStudent(
-            @PathVariable Long userId,
             @RequestParam Optional<String> sortBy,
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Boolean> isAsc,
-            @RequestParam Optional<Boolean> validatedOnly
+            @RequestParam Optional<Boolean> validated
     ){
-        boolean getValidatedOnly = validatedOnly.orElse(Boolean.FALSE);
-
+        boolean getValidatedOnly = validated.orElse(Boolean.TRUE);
+        SecurityUser ud = SecurityUser.getCurrent();
+        Long userId = ud.getUser().getId();
         if(getValidatedOnly){
             return testAnswerService.getStudentTestAnswersValidatedPage(
                     PageRequest.of(
@@ -96,7 +110,7 @@ public class TestAnswerController {
                     ),
                     userId);
         }else{
-            return testAnswerService.getStudentTestAnswersPage(
+            return testAnswerService.getStudentTestAnswersNotValidatedPage(
                     PageRequest.of(
                             page.orElse(0),
                             PAGE_SIZE,

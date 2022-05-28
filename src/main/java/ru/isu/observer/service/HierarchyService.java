@@ -1,5 +1,6 @@
 package ru.isu.observer.service;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.isu.observer.model.global.ListToStringConverter;
@@ -49,6 +50,12 @@ public class HierarchyService {
         );
     }
 
+    public void setLabels(List<String> labels, Long organisationId){
+        Organisation organisation = organisationRepo.getById(organisationId);
+        organisation.setHierarchyLegend(labels);
+        organisationRepo.flush();
+    }
+
     public Long getHierarchyIdByOrganisation(Long organisationId){
         return hierarchyRepo.getHierarchyIdByOrganisation(organisationId);
     }
@@ -75,9 +82,12 @@ public class HierarchyService {
         return res;
     }
     private void getStudentByNode(Hierarchy node, Set<Long> result){
-        if(node.getChildren().isEmpty()){
+        try{
+            Hibernate.unproxy(node);
             result.add(((HierarchyLeaf)node).getStudent().getId());
             return;
+        }catch (Exception e){
+            System.out.println(e.getMessage());
         }
         node.getChildren().forEach((child)->getStudentByNode(child, result));
     }

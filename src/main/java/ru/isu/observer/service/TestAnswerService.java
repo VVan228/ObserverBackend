@@ -31,14 +31,11 @@ public class TestAnswerService {
         this.testService = testService;
     }
 
-    public List<TestAnswer> getTestAnswers(Long testId){
-        return testAnswerRepo.getTestAnswersByTestId(testId);
+    public Page<TestAnswer> getValidatedTestAnswersPage(Pageable pageable, Long testId){
+        return testAnswerRepo.getTestAnswersByTestIdValidated(pageable, testId);
     }
-    public Page<TestAnswer> getTestAnswersPage(Pageable pageable, Long testId){
-        return testAnswerRepo.getTestAnswersByTestId(pageable, testId);
-    }
-    public List<TestAnswer> getTestAnswers(Test test){
-        return getTestAnswers(test.getId());
+    public Page<TestAnswer> getNotValidatedTestAnswersPage(Pageable pageable, Long testId){
+        return testAnswerRepo.getTestAnswersByTestIdNotValidated(pageable, testId);
     }
 
     public TestAnswer createTestAnswer(Long testId, User student, Map<Long, Answer> answers){
@@ -47,6 +44,7 @@ public class TestAnswerService {
     }
     public TestAnswer createTestAnswer(Test test, User student, Map<Long, Answer> answers){
         TestAnswer res = testValidationService.validateTest(test, answers);
+        res.setDateMillis(System.currentTimeMillis());
         res.setStudent(student);
         testAnswerRepo.save(res);
         return res;
@@ -125,4 +123,8 @@ public class TestAnswerService {
         return testAnswerRepo.getStudentTestAnswersValidated(pageable, user.getId());
     }
 
+
+    public Page<TestAnswer> getStudentTestAnswersNotValidatedPage(Pageable pageable, Long userId){
+        return testAnswerRepo.getStudentTestAnswersNotValidated(pageable, userId);
+    }
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -17,6 +18,5 @@ public class TestPlain {
     @Valid
     Test test;
 
-    @NotNull
-    List<Long> access;
+    List<Long> access = new ArrayList<>();
 }

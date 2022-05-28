@@ -37,7 +37,7 @@ public class TestValidationService {
     public TestAnswer validateTest(Test test, Map<Long, Answer> answers){
 
         TestAnswer res = new TestAnswer();
-        res.setTest(test);
+        res.setTestId(test.getId());
         res.setValidated(true);
 
         Map<Long, Question> testQuestions = new HashMap<>();
@@ -48,9 +48,11 @@ public class TestValidationService {
         }
 
         int totalScore = 0;
+        int maxScore = 0;
 
         for (Map.Entry<Long, Answer> answer : answers.entrySet()) {
             Question q = testQuestions.get(answer.getKey());
+            maxScore += q.getScoreScale()*100;
 
             ScoredAnswer sa = new ScoredAnswer();
 
@@ -69,6 +71,7 @@ public class TestValidationService {
             totalScore += sa.getScore();
 
         }
+        res.setMaxScore(maxScore);
         res.setAnswers(studentAnswers);
         res.setTotalScore(totalScore);
 

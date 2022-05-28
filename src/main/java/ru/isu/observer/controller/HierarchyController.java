@@ -17,12 +17,14 @@ import ru.isu.observer.responses.EntityValidator;
 import ru.isu.observer.security.SecurityUser;
 import ru.isu.observer.service.HierarchyService;
 
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Controller
+//@CrossOrigin(origins = "*", allowedHeaders = "*")
+@RestController
 public class HierarchyController {
 
     @Value("${pages.size}")
@@ -50,12 +52,28 @@ public class HierarchyController {
             BindingResult result
     ){
         SecurityUser ud = SecurityUser.getCurrent();
+
+        if(hierarchyService.getHierarchyIdByOrganisation(ud.getUser().getOrganisationId())!=null){
+            throw new EntityNotFoundException("hierarchy existed");
+        }
+
         HierarchyRoot h = hierarchyService.getHierarchyFromMap(bod, ud.getUser().getOrganisationId());
         validator.validate(h, result);
         if(!result.hasErrors()){
             hierarchyService.createHierarchy(h);
         }
         return EntityValidator.validate(result);
+    }
+
+    @ResponseBody
+    @RequestMapping(
+            value="/hierarchy/update/setLabels",
+            method = RequestMethod.POST,
+            consumes = "application/json"
+    )
+    public void saveSubject(@RequestBody List<String> labels){
+        SecurityUser ud = SecurityUser.getCurrent();
+        hierarchyService.setLabels(labels, ud.getUser().getOrganisationId());
     }
 
     @ResponseBody
@@ -78,6 +96,9 @@ public class HierarchyController {
             @PathVariable int level
     ){
         SecurityUser ud = SecurityUser.getCurrent();
+        if(hierarchyService.getHierarchyIdByOrganisation(ud.getUser().getOrganisationId())==null){
+            throw new EntityNotFoundException("no hierarchy");
+        }
         return hierarchyService.getLevelOfHierarchy(
                 hierarchyService.getHierarchyIdByOrganisation(ud.getUser().getOrganisationId()),
                 level
@@ -90,6 +111,9 @@ public class HierarchyController {
     )
     public List<String> getLabels(){
         SecurityUser ud = SecurityUser.getCurrent();
+        if(hierarchyService.getHierarchyIdByOrganisation(ud.getUser().getOrganisationId())==null){
+            throw new EntityNotFoundException("no hierarchy");
+        }
         return hierarchyService.getLabelsOfHierarchyByOrganisation(ud.getUser().getOrganisationId());
     }
 
@@ -99,6 +123,9 @@ public class HierarchyController {
     )
     public Hierarchy getFullTree(){
         SecurityUser ud = SecurityUser.getCurrent();
+        if(hierarchyService.getHierarchyIdByOrganisation(ud.getUser().getOrganisationId())==null){
+            throw new EntityNotFoundException("no hierarchy");
+        }
         return hierarchyService.getHierarchy(hierarchyService.getHierarchyIdByOrganisation(ud.getUser().getOrganisationId()));
     }
 

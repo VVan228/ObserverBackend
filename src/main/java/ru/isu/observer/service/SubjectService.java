@@ -40,8 +40,8 @@ public class SubjectService {
     public List<SubjectPlain> getSubjects(Long organisationId){
         return subjectRepo.getSubjectsOfOrganisation(organisationId);
     }
-    public List<SubjectPlain> getSubjects(Organisation organisation){
-        return getSubjects(organisation.getId());
+    public List<SubjectPlain> getSubjectsForTeacher(Long teacherId){
+        return subjectRepo.getSubjectsForTeacher(teacherId);
     }
 
     public Subject getSubject(Long id){
@@ -70,12 +70,13 @@ public class SubjectService {
     }
 
 
-    public Subject addTeacherToSubject(Long subjectId, Long teacherId){
+    public void addTeacherToSubject(Long subjectId, Long teacherId){
+        subjectRepo.flush();
         User teacher = userService.getUser(teacherId);
         Subject subject = subjectRepo.getById(subjectId);
         subject.addTeacher(teacher);
-        subjectRepo.save(subject);
-        return subject;
+        System.out.println(subject);
+        subjectRepo.flush();
     }
     public void addTeacherToSubject(Subject subject, Long teacherId){
         User teacher = userService.getUser(teacherId);

@@ -27,6 +27,7 @@ public class JwTokenFilter extends GenericFilter {
             if (token != null && jwTokenProvider.validateToken(token)) {
                 Authentication authentication = jwTokenProvider.getAuthentication(token);
                 if (authentication != null) {
+                    System.out.println("authenticated");
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }

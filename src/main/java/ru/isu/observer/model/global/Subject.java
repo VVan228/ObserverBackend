@@ -16,6 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Subject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,10 +25,9 @@ public class Subject {
     @NotBlank
     String name;
 
-    @OneToMany(cascade=CascadeType.ALL)
+    @ManyToMany
     Set<User> teachers = new HashSet<>();
 
-    @NotNull
     Long organisationId;
 
     public void addTeacher(User user){
